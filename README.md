@@ -1,5 +1,9 @@
 # Dialogue Editor (Unity)
 
+## Prerequisites
+- [ ] Unity 2023.2+
+- [ ] Odin Inspector
+
 A modular dialogue editor built on top of **Unity Experimental GraphView**, designed for creating complex, branching dialogue flows while remaining lightweight and extensible.
 
 The editor allows you to visually compose dialogue graphs made of interconnected nodes, which are serialized into **ScriptableObjects**. Each node holds direct references to its connected nodes, making runtime evaluation straightforward and fast.
