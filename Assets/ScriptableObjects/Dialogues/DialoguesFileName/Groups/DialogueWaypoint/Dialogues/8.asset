@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7843603eb7dac48a14cda296b3d168, type: 3}
+  m_Name: 8
+  m_EditorClassIdentifier: DialogueSystemAssembly::DialogueSystem.NodeSO
+  <DialogueID>k__BackingField: 88670de0-1757-4a6c-93f6-37de74559c41
+  <DialogueGroup>k__BackingField: 54eec528-35ce-416e-a1b2-1bdc8fcd4b59
+  <DialogueName>k__BackingField: 8
+  <DialogueType>k__BackingField: 0
+  <IsStartingNode>k__BackingField: 0
+  <Model>k__BackingField:
+    <Text>k__BackingField: 'I have changed my mind, i need to go. '
+    <SpeakerType>k__BackingField: 1
+    <NodeSettings>k__BackingField: []
+  <Choices>k__BackingField:
+  - <NextDialogue>k__BackingField: {fileID: 11400000, guid: d347c60d12bfb274ea1b2ac501919af8, type: 2}
+  references:
+    version: 2
+    RefIds: []

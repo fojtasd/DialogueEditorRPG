@@ -1,0 +1,94 @@
+﻿using System;
+using System.Linq;
+using DialogueEditor.Data.Save;
+using DialogueEditor.Elements;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine.UIElements;
+
+namespace DialogueSystem.Utilities
+{
+    public class DSPortHelper
+    {
+        public static Port CreatePort(string portName = "", Orientation orientation = Orientation.Horizontal,
+            Direction direction =
+                Direction.Output, Port.Capacity capacity = Port.Capacity.Single)
+        {
+            Port port = InstantiatePort(orientation, direction, capacity, typeof(float));
+            port.portName = portName;
+            var connectorListener = new DSConnectorListener();
+            var edgeConnector = new EdgeConnector<DSEdge>(connectorListener);
+            port.AddManipulator(edgeConnector);
+            return port;
+        }
+    
+    
+    public static Port CreateChoicePort(object userData) {
+            Port choicePort = CreatePort();
+
+            choicePort.userData = userData;
+
+            DSChoiceSaveData choiceData = (DSChoiceSaveData)userData;
+
+            Button deleteChoiceButton = DSElementUtility.CreateButton("X", () =>
+            {
+                if (model.Choices.Count == 1)
+                {
+                    return;
+                }
+
+                if (choicePort.connected)
+                {
+                    graphView.DeleteElements(choicePort.connections);
+                }
+
+                model.Choices.Remove(choiceData);
+
+                if (model.Choices.Count == 1)
+                {
+                    model.DialogueType = DSDialogueType.SingleChoice;
+                }
+
+                graphView.RemoveElement(choicePort);
+            });
+
+            deleteChoiceButton.AddToClassList("ds-node__button");
+
+            TextField choiceTextField = DSElementUtility.CreateTextField(choiceData.Text, null,
+                callback => { choiceData.Text = callback.newValue; });
+
+
+            Button choiceButton = new(() => { FollowNode(choicePort); })
+            {
+                text = "Follow",
+            };
+
+            choiceButton.schedule.Execute(() =>
+            {
+                DSEdge edge = (DSEdge)choicePort.connections.FirstOrDefault();
+
+                if (edge != null && edge.input != null && edge.input.node is DSNode nextNode)
+                {
+                    choiceButton.tooltip = $"{nextNode.model.Text}";
+                    choiceButton.style.backgroundColor = edge._assignedColor;
+                    choiceButton.style.color = Color.black;
+
+                    string degustation = nextNode.model.Text[..Math.Min(25, nextNode.model.Text.Length)] + "...";
+                    choiceTextField.SetValueWithoutNotify(degustation);
+                }
+            }).ExecuteLater(300);
+
+            choicePort.Add(choiceButton);
+
+            choiceTextField.AddClasses(
+                "ds-node__text-field",
+                "ds-node__text-field__hidden",
+                "ds-node__choice-text-field"
+            );
+
+            choicePort.Add(choiceTextField);
+            choicePort.Add(deleteChoiceButton);
+
+            return choicePort;
+        }
+    }
+}

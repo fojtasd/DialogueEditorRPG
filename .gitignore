@@ -1,0 +1,33 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+
+# Unity cache
+[Ll]ightmapSnapshot/
+Resources/Editor/
+
+# Rider / VS / VSCode / Visual Studio stuff
+.vs/
+.idea/
+*.user
+*.userprefs
+*.csproj
+*.sln
+*.unityproj
+
+# Crash dumps
+*.stacktrace
+
+# Optional: Large/unused asset types
+*.psd
+*.tga
+*.wav
+*.fbx
+*.mp4
+*.zip

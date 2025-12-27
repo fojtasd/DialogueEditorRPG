@@ -1,0 +1,65 @@
+:root {
+    /* === Basic colors === */
+    --color-white: #FFFFFF;
+    --color-black: #000000;
+
+    /* === Greys === */
+    --color-grey-1: #1D1D1E;
+    --color-grey-2: #2B2D2F;
+    --color-grey-3: #323527;
+    --color-grey-4: #252729;
+    --color-grey-5: #27292C;
+
+    /* === Red === */
+    --color-red: #E53935;
+    --color-red-dark: #B71C1C;
+    --color-red-light: #FF6F60;
+
+    /* === Orange === */
+    --color-orange: #FF9800;
+    --color-orange-dark: #EF6C00;
+    --color-orange-light: #FFB74D;
+
+    /* === Yellow === */
+    --color-yellow: #FDD057;
+    --color-yellow-dark: #C9A227;
+    --color-yellow-light: #FFE082;
+
+    /* === Green === */
+    --color-green: #4CAF50;
+    --color-green-dark: #2E7D32;
+    --color-green-light: #81C784;
+
+    /* === Blue === */
+    --color-blue: #4EA1FF;
+    --color-blue-dark: #1E88E5;
+    --color-blue-light: #90CAF9;
+
+    /* === Purple === */
+    --color-purple: #9C6BFF;
+    --color-purple-dark: #673AB7;
+    --color-purple-light: #B39DDB;
+
+    /* === Cyan === */
+    --color-cyan: #26C6DA;
+    --color-cyan-dark: #00838F;
+    --color-cyan-light: #80DEEA;
+
+    --ds-metrics-grid-25: 25;
+    --ds-metrics-window-pixels-n12: -12px;
+    --ds-metrics-window-pixels-n4: -4px;
+    --ds-metrics-window-pixels-0: 0px;
+    --ds-metrics-window-pixels-2: 2px;
+    --ds-metrics-window-pixels-4: 4px;
+    --ds-metrics-window-pixels-6: 6px;
+    --ds-metrics-window-pixels-8: 8px;
+    --ds-metrics-window-pixels-11: 11px;
+    --ds-metrics-window-pixels-16: 16px;
+    --ds-metrics-window-pixels-25: 25px;
+    --ds-metrics-window-pixels-35: 35px;
+    --ds-metrics-window-pixels-120: 120px;
+    --ds-metrics-window-pixels-160: 160px;
+    --ds-metrics-window-pixels-240: 240px;
+    --ds-metrics-window-pixels-600: 600px;
+    --ds-metrics-window-pixels-1000: 1000px;
+}

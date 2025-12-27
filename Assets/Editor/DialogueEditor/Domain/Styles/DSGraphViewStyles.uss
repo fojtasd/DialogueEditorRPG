@@ -1,0 +1,14 @@
+GridBackground {
+    --grid-background-color: var(--color-grey-1);
+    --line-color: var(--color-grey-3);
+    --thick-line-color: var(--color-grey-1);
+    --spacing: var(--ds-metrics-grid-25);
+}
+
+.search-match {
+    background-color: #1e1e1e;
+    color: #fff;
+    padding: 4px 6px;
+    border-radius: 4px;
+    width: 160px;
+}

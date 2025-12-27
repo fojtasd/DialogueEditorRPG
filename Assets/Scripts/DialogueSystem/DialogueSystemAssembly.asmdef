@@ -1,0 +1,17 @@
+{
+    "name": "DialogueSystemAssembly",
+    "rootNamespace": "DialogueSystem",
+    "references": [
+        "GUID:d8823f59258663942a8ba1d99b44bef7",
+        "GUID:dfcd8954d9b9a804b922a41d30c4ee44"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
