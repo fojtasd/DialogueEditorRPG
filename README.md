@@ -19,6 +19,12 @@ The editor allows you to visually compose dialogue graphs made of interconnected
 - Optional node settings system – nodes can define visibility or availability rules (e.g. required skills, attributes, items, intel, or previously visited nodes)
 - Scales from simple to complex – advanced features can be completely omitted for basic dialogue use cases
 
+
+
+
+
+
+
 ## Design Philosophy
 
 The editor is intentionally modular. Advanced dialogue logic (conditions, requirements, visibility rules) is optional and can be removed entirely if not needed. This allows the tool to stay lightweight for simple projects while still supporting complex narrative structures when required.
