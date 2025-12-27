@@ -1,7 +1,7 @@
 # Dialogue Editor (Unity)
 
 ## Prerequisites
-- [ ] Unity 2023.2+
+- [ ] Unity 6000.3.2f1 - but it might work on older versions too, I have started on pre-6 versions.
 - [ ] Odin Inspector
 
 A modular dialogue editor built on top of **Unity Experimental GraphView**, designed for creating complex, branching dialogue flows while remaining lightweight and extensible.
@@ -19,11 +19,46 @@ The editor allows you to visually compose dialogue graphs made of interconnected
 - Optional node settings system – nodes can define visibility or availability rules (e.g. required skills, attributes, items, intel, or previously visited nodes)
 - Scales from simple to complex – advanced features can be completely omitted for basic dialogue use cases
 
+ ![Toolbar](/Images/DE-1.png)
+ Toolbar with many options - saving graph, converting graph to ScriptableObjects, loading graph, number of logical errors in graph, clear/reset buttons and search field.
+ 
+<br clear="both"/>
+ 
+![Graph](/Images/DE-2.png)
+<br>
+Various elements available to add to graph.
 
+<br clear="both"/>
 
+![Options](/Images/DE-3.png)
+<br>
+Options possible to set on Dialogue (NodeSO) Node, such as Consequences (add something to player, trigger something - trade, quest, attack...) or Visibility - if node is available as option (if player had met requirements).
 
+<br clear="both"/>
 
+![Speaker](/Images/DE-5.png)
+<br>
+Speaker Type as Player
 
+<br clear="both"/>
+
+![Graph](/Images/DE-6.png)
+<br>
+Example of branching
+
+<br clear="both"/>
+
+![Accessibility](/Images/DE-7.png)
+<br>
+Example of adding Consequence/Visibility
+
+<br clear="both"/>
+
+![Indicator](/Images/DE-8.png)
+<br>
+Indicator showing, that node has extra setting for its accessibility.
+
+<br clear="both"/>
 
 ## Design Philosophy
 
