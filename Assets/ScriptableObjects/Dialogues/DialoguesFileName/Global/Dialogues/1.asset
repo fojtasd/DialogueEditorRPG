@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 887724df39194f2bba8fa76d64223d22, type: 3}
+  m_Name: 1
+  m_EditorClassIdentifier: DialogueSystemAssembly::DialogueSystem.ConditionalNodeSO
+  <DialogueID>k__BackingField: d788e198-f475-48db-9137-e225d6e9a593
+  <DialogueGroup>k__BackingField: 
+  <DialogueName>k__BackingField: 1
+  <DialogueType>k__BackingField: 2
+  <IsStartingNode>k__BackingField: 1
+  <NextDialogueSuccess>k__BackingField: {fileID: 11400000, guid: 9be543e827fc25f44bdc446bbfc4bef1, type: 2}
+  <NextDialogueFailure>k__BackingField: {fileID: 11400000, guid: 67a479938eaa6274b98bbfdc569a3ca0, type: 2}
+  <Conditionals>k__BackingField:
+    <ExpectedValue>k__BackingField: 0
+    <ExpectedIntel>k__BackingField: {fileID: 11400000, guid: fb72ef1ac52d3ed4b945d15568dd5414, type: 2}
+    <AttributeType>k__BackingField: 0
+    <SkillType>k__BackingField: 0
+    <Kind>k__BackingField: 2

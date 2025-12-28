@@ -71,7 +71,7 @@ namespace DialogueEditor.Windows {
                     backgroundColor = new Color(0f, 0f, 0f, 0.35f),
                     display = DisplayStyle.None
                 },
-                pickingMode = PickingMode.Ignore
+                pickingMode = PickingMode.Position
             };
             _graphViewElement.Add(_graphDimOverlay);
             _graphDimOverlay.BringToFront();

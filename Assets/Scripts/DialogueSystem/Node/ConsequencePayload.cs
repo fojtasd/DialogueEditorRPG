@@ -1,4 +1,5 @@
 using System;
+using Contracts.Contracts;
 using UnityEngine;
 
 namespace DialogueSystem.Node {
@@ -30,7 +31,7 @@ namespace DialogueSystem.Node {
 
     [Serializable]
     public sealed class GiveIntelConsequencePayload : ConsequencePayload {
-        public string intelReference;
+        public IntelSO intelReference;
         public override ConsequenceKind Kind => ConsequenceKind.GiveIntelToPlayer;
     }
 

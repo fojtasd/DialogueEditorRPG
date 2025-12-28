@@ -34,7 +34,7 @@ namespace DialogueSystem.Node {
                 IsVisitableOnlyOncePayload => "Node is visitable only once.",
                 NotVisitableAfterVisitingPayload node => $"Node is not visitable after visiting node: {node.nodeId}",
                 VisitableOnlyAfterVisitingPayload node => $"Node is visitable only after visiting node: {node.nodeId}",
-                IntelRequiredPayload node => $"Node is not visitable until knowing: {node.intelID}",
+                IntelRequiredPayload node => $"Node is not visitable until having Intel: {node.intel.Name}",
                 AttributeRequiredPayload node => $"Node is not visitable until having: {node.attributeType} on {node.value}",
                 SkillRequiredPayload node => $"Node is not visitable until having: {node.skillType}  on {node.value}",
                 QuestRequiredPayload node => $"Node is not visitable until having: {node.questID}",
@@ -83,7 +83,7 @@ namespace DialogueSystem.Node {
                 IsVisitableOnlyOncePayload => new IsVisitableOnlyOncePayload(),
                 NotVisitableAfterVisitingPayload payload => new NotVisitableAfterVisitingPayload { nodeId = payload.nodeId },
                 VisitableOnlyAfterVisitingPayload payload => new VisitableOnlyAfterVisitingPayload{nodeId =  payload.nodeId},
-                IntelRequiredPayload payload => new IntelRequiredPayload { intelID = payload.intelID },
+                IntelRequiredPayload payload => new IntelRequiredPayload { intel = payload.intel },
                 QuestRequiredPayload payload => new QuestRequiredPayload { questID = payload.questID },
                 SkillRequiredPayload payload => new SkillRequiredPayload {skillType = payload.skillType, value = payload.value },
                 AttributeRequiredPayload payload => new AttributeRequiredPayload{attributeType = payload.attributeType, value = payload.value },
@@ -129,7 +129,7 @@ namespace DialogueSystem.Node {
     [Serializable]
     public sealed class IntelRequiredPayload : AccessibilityPayload {
         public override AccessibilityKind Kind => AccessibilityKind.IntelRequired;
-        public string intelID;
+        public IntelSO intel;
     }
     
     [Serializable]

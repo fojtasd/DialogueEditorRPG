@@ -15,8 +15,8 @@ MonoBehaviour:
   <FileName>k__BackingField: DialoguesFileName
   <Groups>k__BackingField: []
   <Nodes>k__BackingField:
-  - <ID>k__BackingField: 4f6b4285-8a5c-4ac1-9375-2fad1972659a
-    <NodeName>k__BackingField: 1
+  - <ID>k__BackingField: 71562062-7981-45b8-91f5-5eec18900d1d
+    <NodeName>k__BackingField: 2
     <Text>k__BackingField: Dialogue text
     <SpeakerType>k__BackingField: 0
     <Choices>k__BackingField:
@@ -37,14 +37,68 @@ MonoBehaviour:
       skillType: 0
     <GroupID>k__BackingField: 
     <ChoiceType>k__BackingField: 0
-    <Position>k__BackingField: {x: 228.66667, y: 172}
+    <Position>k__BackingField: {x: 533.3334, y: 82.666664}
     <NodeSettings>k__BackingField: []
     <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: cc15e649-fc1a-4aad-927d-131aae489827
+    <NodeName>k__BackingField: 3
+    <Text>k__BackingField: Dialogue text
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 533.3334, y: 502.6667}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: d788e198-f475-48db-9137-e225d6e9a593
+    <NodeName>k__BackingField: 1
+    <Text>k__BackingField: 
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField: []
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: FAILURE
+        <NodeID>k__BackingField: cc15e649-fc1a-4aad-927d-131aae489827
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: SUCCESS
+        <NodeID>k__BackingField: 71562062-7981-45b8-91f5-5eec18900d1d
+        <OutputType>k__BackingField: 1
+      expectedValue: 0
+      kind: 2
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 2
+    <Position>k__BackingField: {x: 302.66666, y: 248.66666}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 1
     <RelayConnection>k__BackingField:
       <NodeID>k__BackingField: 
   <StickyNotes>k__BackingField: []
   <OldGroupNames>k__BackingField: []
   <OldUngroupedNodeNames>k__BackingField:
+  - 2
+  - 3
   - 1
   <OldGroupedNodeNames>k__BackingField:
     list: []

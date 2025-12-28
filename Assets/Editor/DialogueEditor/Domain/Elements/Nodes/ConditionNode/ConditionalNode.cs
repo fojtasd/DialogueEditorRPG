@@ -4,6 +4,7 @@ using Contracts.Contracts;
 using DialogueEditor.Data.Save;
 using DialogueEditor.Utilities;
 using DialogueSystem.Node;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -21,6 +22,7 @@ namespace DialogueEditor.Elements {
         public ConditionTargetType ConditionTargetType;
 
         public int ExpectedValue;
+        public IntelSO ExpectedIntel;
 
         public ConditionalNodeSaveData FailureNodeData = new() { OutputType = ConditionalOutputType.Failure, Text = "FAILURE" };
         public ConditionalNodeSaveData SuccessNodeData = new() { OutputType = ConditionalOutputType.Success, Text = "SUCCESS" };
@@ -88,8 +90,7 @@ namespace DialogueEditor.Elements {
             
             Label nodeNameLabel = new Label("Node Name") { style = { fontSize = 13 } };
             TextField nodeName = ElementUtility.CreateTextField(NodeName, null, callback => {
-                if (_nodeNameEditScope == null)
-                    _nodeNameEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Rename conditional node");
+                _nodeNameEditScope ??= GraphViewElement.UndoManager.BeginNodeEdit(this, "Rename conditional node");
 
                 var target = (TextField)callback.target;
 
@@ -136,12 +137,7 @@ namespace DialogueEditor.Elements {
             nodeNameLabel.style.alignSelf = Align.Center;
             nodeNameLabel.style.paddingLeft = 5;
 
-            var label = new Label();
-            label.style.fontSize = 15;
-            label.style.unityFontStyleAndWeight = FontStyle.Bold;
-            label.style.alignSelf = Align.Center;
-            label.style.paddingLeft = 15;
-            label.text = "IF";
+            var label = new Label { style = { fontSize = 15, unityFontStyleAndWeight = FontStyle.Bold, alignSelf = Align.Center, paddingLeft = 15 }, text = "IF" };
 
             RefreshUIInternal();
             EnumField ifNodeTypeDropdown = new("", ConditionTargetType) { tooltip = Constants.IfNodeTypeTooltip };
@@ -158,12 +154,15 @@ namespace DialogueEditor.Elements {
             _row1.Add(label);
             _row1.Add(ifNodeTypeDropdown);
 
-            var divider = new VisualElement();
-            divider.style.height = 1;
-            divider.style.marginBottom = 1;
-            divider.style.borderBottomColor = Color.black;
-            divider.style.borderBottomWidth = 0.6f;
-            divider.style.paddingTop = 4;
+            var divider = new VisualElement { 
+                style = { 
+                    height = 1, 
+                    marginBottom = 1, 
+                    borderBottomColor = Color.black, 
+                    borderBottomWidth = 0.6f, 
+                    paddingTop = 4
+                } 
+            };
 
             container.Add(_row0);
             container.Add(_row1);
@@ -180,39 +179,92 @@ namespace DialogueEditor.Elements {
 
             if (ConditionTargetType == ConditionTargetType.Attribute) {
                 attrDropdown.RegisterValueChangedCallback(e => {
-                    GraphViewElement.UndoManager.RecordNodeChange(this, "Change required attribute", () => {
+                    GraphViewElement.UndoManager.RecordNodeChange(this, "Change required Attribute", () => {
                         AttributeType = (AttributeType)e.newValue;
                     });
                 });
                 attrDropdown.AddToClassList("cnode_attribute-dropdown");
                 _row2.Add(attrDropdown);
+                AddThresholdUI();
             }
 
             if (ConditionTargetType == ConditionTargetType.Skill) {
                 skillDropdown.RegisterValueChangedCallback(e => {
-                    GraphViewElement.UndoManager.RecordNodeChange(this, "Change required skill", () => {
+                    GraphViewElement.UndoManager.RecordNodeChange(this, "Change required Skill", () => {
                         SkillType = (SkillType)e.newValue;
                     });
                 });
                 skillDropdown.AddToClassList("cnode_skill-dropdown");
                 _row2.Add(skillDropdown);
+                AddThresholdUI();
             }
+            
+            if (ConditionTargetType == ConditionTargetType.Intel) {
+                const string intelFolder = "Assets/ScriptableObjects/Intels";
+                var intelField = new UnityEditor.UIElements.ObjectField("") {
+                    objectType = typeof(IntelSO),
+                    tooltip = $"Pick IntelSO from {intelFolder}"
+                };
+                
+                intelField.SetValueWithoutNotify(ExpectedIntel);
+                intelField.RegisterValueChangedCallback(evt => {
+                    var picked = evt.newValue as IntelSO;
 
-            VisualElement bottomContainer = new();
+                    // null is ok (deletion
+                    if (picked == null) {
+                        GraphViewElement.UndoManager.RecordNodeChange(this, "Clear required Intel", () => {
+                            ExpectedIntel = null;
+                        });
+                        return;
+                    }
+
+                    // Folder check
+                    var path = AssetDatabase.GetAssetPath(picked);
+                    var ok = !string.IsNullOrEmpty(path) &&
+                             path.Replace('\\','/').StartsWith(intelFolder + "/");
+
+                    if (!ok) {
+                        // revert UI back to original value
+                        intelField.SetValueWithoutNotify(ExpectedIntel);
+
+                        Debug.LogWarning($"IntelSO must be picked from: {intelFolder}. Picked: {path}");
+                        return;
+                    }
+
+                    GraphViewElement.UndoManager.RecordNodeChange(this, "Change required Intel", () => {
+                        ExpectedIntel = picked;
+                    });
+                });
+
+                intelField.AddToClassList("cnode_intel-object-field");
+                _row2.Add(intelField);
+            }
+        }
+
+        static EdgeConnector<EdgeElement> CreateEdgeConnector() {
+            return new EdgeConnector<EdgeElement>(new ConnectorListener());
+        }
+        
+        void AddThresholdUI() {
+            var bottomContainer = new VisualElement();
             bottomContainer.AddToClassList("cnode__bottom-container");
 
-            Label textLabel = new(">=");
-            textLabel.style.fontSize = 14;
+            var textLabel = new Label(">=") {
+                style = {
+                    fontSize = 14
+                }
+            };
             textLabel.AddToClassList("cnode__operand_text");
 
             var inputField = new IntegerField();
             inputField.SetValueWithoutNotify(ExpectedValue);
+
             inputField.RegisterValueChangedCallback(evt => {
-                if (_expectedValueEditScope == null)
-                    _expectedValueEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Change condition threshold");
+                _expectedValueEditScope ??= GraphViewElement.UndoManager.BeginNodeEdit(this, "Change condition threshold");
 
                 ExpectedValue = evt.newValue;
             });
+
             inputField.RegisterCallback<FocusInEvent>(_ => {
                 _expectedValueEditScope?.Dispose();
                 _expectedValueEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Change condition threshold");
@@ -225,16 +277,12 @@ namespace DialogueEditor.Elements {
                 _expectedValueEditScope?.Dispose();
                 _expectedValueEditScope = null;
             });
+
             inputField.AddToClassList("cnode__input-field");
 
             bottomContainer.Add(textLabel);
             bottomContainer.Add(inputField);
-
             _row2.Add(bottomContainer);
-        }
-
-        static EdgeConnector<EdgeElement> CreateEdgeConnector() {
-            return new EdgeConnector<EdgeElement>(new ConnectorListener());
         }
     }
 }

@@ -15,6 +15,12 @@ namespace DialogueSystem {
         /// </summary>
         [field: SerializeField]
         public int ExpectedValue { get; set; }
+        
+        /// <summary>
+        ///     This is minimal expected value from the check
+        /// </summary>
+        [field: SerializeField]
+        public IntelSO ExpectedIntel { get; set; }
 
         /// <summary>
         ///     If  <see cref="ConditionTargetType" /> is <see cref="ConditionTargetType.Attribute" />, this

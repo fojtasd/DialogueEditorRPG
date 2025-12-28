@@ -331,6 +331,7 @@ namespace DialogueEditor.Utilities {
         static ConditionalNodeData ConvertNodeConditionalToDialogueConditional(ConditionalNode cNode, ConditionalNodeData conditionalData = null) {
             conditionalData ??= new ConditionalNodeData();
             conditionalData.ExpectedValue = cNode.ExpectedValue;
+            conditionalData.ExpectedIntel = cNode.ExpectedIntel;
             conditionalData.AttributeType = cNode.AttributeType;
             conditionalData.SkillType = cNode.SkillType;
             conditionalData.Kind = cNode.ConditionTargetType;
@@ -383,6 +384,7 @@ namespace DialogueEditor.Utilities {
                         conditional.NextDialogueSuccess = dialogueOptionSuccess;
                         conditional.NextDialogueFailure = dialogueOptionFail;
                         conditional.Conditionals.ExpectedValue = cNode.ExpectedValue;
+                        conditional.Conditionals.ExpectedIntel = cNode.ExpectedIntel;
                         conditional.Conditionals.SkillType = cNode.SkillType;
                         conditional.Conditionals.AttributeType = cNode.AttributeType;
 

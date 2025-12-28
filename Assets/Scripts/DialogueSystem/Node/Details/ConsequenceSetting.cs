@@ -29,7 +29,7 @@ namespace DialogueSystem.Node {
                 GiveMoneyConsequencePayload money => $"Player will receive: {money.amount}$",
                 GiveItemConsequencePayload item => $"Player will receive: {item.itemName}: {item.quantity} pcs",
                 GiveQuestConsequencePayload quest => $"Player will receive quest: {quest.questReference}",
-                GiveIntelConsequencePayload intel => $"Player will receive intel: {intel.intelReference}",
+                GiveIntelConsequencePayload intel => $"Player will receive intel: {intel.intelReference.Name}",
                 InvokeEmotionPayload emotionPayload => $"{emotionPayload.emotion} emotion will be invoked",
                 InvokeHostilityConsequencePayload => "Will start hostility",
                 StartTradeConsequencePayload => "Will start trade",

@@ -57,7 +57,7 @@ namespace DialogueEditor.Elements {
             win.consequence.EnsurePayload();
             win.minSize = new Vector2(360, 240);
             ownerWindow?.SetGraphDimmed(true);
-            win.ShowModalUtility();
+            win.Show();
         }
     }
 }
