@@ -4,6 +4,9 @@
 - [ ] Unity 6000.3.2f1 - but it might work on older versions too, I have started on pre-6 versions.
 - [ ] Odin Inspector
 
+## How to start Dialogue Editor
+In the Unity main frame find Tools/Dialogue Editor/Editor and start it.
+
 A modular dialogue editor built on top of **Unity Experimental GraphView**, designed for creating complex, branching dialogue flows while remaining lightweight and extensible.
 
 The editor allows you to visually compose dialogue graphs made of interconnected nodes, which are serialized into **ScriptableObjects**. Each node holds direct references to its connected nodes, making runtime evaluation straightforward and fast.
