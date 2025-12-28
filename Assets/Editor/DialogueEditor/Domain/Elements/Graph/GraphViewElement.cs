@@ -127,6 +127,16 @@ namespace DialogueEditor.Elements {
                     }
 
                     break;
+                case KeyCode.S:
+                    if (evt.shiftKey) {
+                        EditorWindow?.SaveGraphAs();
+                        evt.StopPropagation();
+                    } else {
+                        EditorWindow?.SaveCurrentGraph();
+                        evt.StopPropagation();
+                    }
+
+                    break;
             }
         }
 
@@ -407,8 +417,13 @@ namespace DialogueEditor.Elements {
             };
         }
 
-        public void DisconnectPortConnections(Port port) {
-            foreach (Edge connection in port.connections.ToList()) {
+        public List<Edge> DisconnectPortConnections(Port port) {
+            if (port == null)
+                return new List<Edge>();
+
+            List<Edge> existingConnections = port.connections?.ToList() ?? new List<Edge>();
+
+            foreach (Edge connection in existingConnections) {
                 if (connection is EdgeElement { output: { userData: DialogueNodeSaveData choiceData, node: DialogueNode } }) {
                     choiceData.NodeID = null;
                 }
@@ -423,6 +438,8 @@ namespace DialogueEditor.Elements {
                 connection.input?.Disconnect(connection);
                 RemoveElement(connection);
             }
+
+            return existingConnections;
         }
 
         public void AddUngroupedNode(BaseNode node) {
@@ -694,9 +711,14 @@ namespace DialogueEditor.Elements {
         }
 
         void DisconnectPorts(VisualElement container) {
+            var removedEdges = new List<Edge>();
+
             foreach (VisualElement child in container.Children())
                 if (child is Port { connected: true } port)
-                    DisconnectPortConnections(port);
+                    removedEdges.AddRange(DisconnectPortConnections(port));
+
+            if (removedEdges.Count > 0)
+                _undoManager.RecordConnectionsDeleted(removedEdges);
         }
 
         public void DisconnectAllPorts(BaseNode dialogueNode) {
@@ -1053,6 +1075,33 @@ namespace DialogueEditor.Elements {
                 ConditionalNode target = conditionalNode;
                 GraphValidationIssue outputIssue = summary.AddIssue($"Conditional node {DescribeNode(target)} has an unconnected {outputsLabel}.");
                 outputIssue?.AddAction($"Focus {DescribeNodeShort(target)}", () => CenterOnNode(target));
+            }
+
+            foreach (ConditionalNode conditionalNode in nodes.OfType<ConditionalNode>()) {
+                List<(string label, DialogueNode target)> flaggedTargets = new();
+
+                DialogueNode successTarget = FindNodeById(conditionalNode.SuccessNodeData?.NodeID) as DialogueNode;
+                if (successTarget?.Model?.NodeSettings is { Count: > 0 })
+                    flaggedTargets.Add(("SUCCESS", successTarget));
+
+                DialogueNode failureTarget = FindNodeById(conditionalNode.FailureNodeData?.NodeID) as DialogueNode;
+                if (failureTarget?.Model?.NodeSettings is { Count: > 0 })
+                    flaggedTargets.Add(("FAILURE", failureTarget));
+
+                if (flaggedTargets.Count == 0)
+                    continue;
+
+                string targetSummary = string.Join(", ",
+                                                   flaggedTargets.Select(pair => $"{pair.label} -> {DescribeNode(pair.target)}"));
+                GraphValidationIssue settingsIssue =
+                    summary.AddIssue($"Conditional node {DescribeNode(conditionalNode)} routes to dialogue nodes with accessibility/consequence settings: {targetSummary}.");
+                settingsIssue?.AddAction($"Focus {DescribeNodeShort(conditionalNode)}", () => CenterOnNode(conditionalNode));
+                if (settingsIssue != null) {
+                    foreach ((string _, DialogueNode target) in flaggedTargets) {
+                        DialogueNode capturedTarget = target;
+                        settingsIssue.AddAction($"Focus {DescribeNodeShort(capturedTarget)}", () => CenterOnNode(capturedTarget));
+                    }
+                }
             }
 
             foreach (BaseNode node in nodes.OfType<BaseNode>()) {

@@ -6,6 +6,7 @@ using System.Linq;
 using Contracts.Dialogues;
 using Contracts.Dialogues.Nodes;
 using DialogueEditor.Data.Save;
+using DialogueEditor.Domain.Undo;
 using DialogueEditor.Utilities;
 using DialogueSystem.Node;
 using UnityEditor.Experimental.GraphView;
@@ -247,7 +248,50 @@ namespace DialogueEditor.Elements {
                                                                                               existingEdge.input == edge.input))
                                                      .ToList();
 
+                    if (filteredEdges.Count > 0)
+                        GraphViewElement?.UndoManager.RecordConnectionsCreated(filteredEdges);
+
                     change.edgesToCreate = filteredEdges;
+                }
+
+                if (change.elementsToRemove is { Count: > 0 }) {
+                    List<Edge> removedEdges = change.elementsToRemove
+                                                    .OfType<Edge>()
+                                                    .Where(edge => edge is { output: { node: BaseNode }, input: { node: BaseNode } })
+                                                    .ToList();
+
+                    if (removedEdges.Count > 0)
+                        GraphViewElement?.UndoManager.RecordConnectionsDeleted(removedEdges);
+                }
+
+                if (change.movedElements is { Count: > 0 } movedElements && GraphViewElement?.UndoManager != null) {
+                    Vector2 delta = new Vector2(change.moveDelta.x, change.moveDelta.y);
+
+                    if (!Mathf.Approximately(delta.x, 0f) || !Mathf.Approximately(delta.y, 0f)) {
+                        var moveRecords = new List<GraphUndoManager.GraphElementsMoveRecord>();
+
+                        foreach (GraphElement element in movedElements) {
+                            switch (element) {
+                                case BaseNode movedNode: {
+                                    Rect newRect = movedNode.GetPosition();
+                                    Vector2 previousPosition = newRect.position - delta;
+                                    var oldRect = new Rect(previousPosition, newRect.size);
+                                    moveRecords.Add(GraphUndoManager.GraphElementsMoveRecord.ForNode(movedNode, oldRect, newRect));
+                                    break;
+                                }
+                                case GroupElement movedGroup: {
+                                    Rect newRect = movedGroup.GetPosition();
+                                    Vector2 previousPosition = newRect.position - delta;
+                                    var oldRect = new Rect(previousPosition, newRect.size);
+                                    moveRecords.Add(GraphUndoManager.GraphElementsMoveRecord.ForGroup(movedGroup, oldRect, newRect));
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (moveRecords.Count > 0)
+                            GraphViewElement.UndoManager.RecordElementsMoved(moveRecords);
+                    }
                 }
 
                 return change;

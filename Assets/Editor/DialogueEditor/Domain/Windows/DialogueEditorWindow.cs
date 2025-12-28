@@ -7,6 +7,7 @@ using DialogueEditor.Data.Error;
 using DialogueEditor.Elements;
 using DialogueEditor.Utilities;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -21,12 +22,15 @@ namespace DialogueEditor.Windows {
         ScrollView _autoFixListView;
 
         Button _errorIndicatorButton;
+        ToolbarMenu _saveMenu;
+        VisualElement _saveBadge;
         IVisualElementScheduledItem _errorIndicatorSchedule;
         VisualElement _errorInfoContainer;
         ScrollView _errorListView;
         VisualElement _graphDimOverlay;
         GraphViewElement _graphViewElement;
         List<string> _lastIssueSnapshot = new();
+        bool _isGraphDirty;
 
         void OnEnable() {
             minSize = new Vector2(MinimumWindowWidth, MinimumWindowHeight);
@@ -41,6 +45,8 @@ namespace DialogueEditor.Windows {
             _errorIndicatorSchedule?.Pause();
             _errorIndicatorSchedule = null;
             SetGraphDimmed(false);
+            if (_graphViewElement != null)
+                _graphViewElement.OnGraphChanged -= MarkGraphDirty;
         }
 
         [MenuItem(ToolName)]
@@ -52,6 +58,7 @@ namespace DialogueEditor.Windows {
             _graphViewElement = new GraphViewElement(this);
             _graphViewElement.StretchToParentSize();
             rootVisualElement.Add(_graphViewElement);
+            _graphViewElement.OnGraphChanged += MarkGraphDirty;
 
             _graphDimOverlay = new VisualElement {
                 name = "ds-graph-dim-overlay",
@@ -85,6 +92,9 @@ namespace DialogueEditor.Windows {
             _fileNameTextField = toolbar.FileNameTextField;
             _errorIndicatorButton = toolbar.ErrorIndicatorButton;
             _errorIndicatorButton.tooltip = "Graph validation summary";
+            _saveMenu = toolbar.SaveButton;
+            _saveBadge = toolbar.SaveBadge;
+            UpdateSaveIndicator();
 
             rootVisualElement.Add(toolbar);
         }
@@ -123,9 +133,14 @@ namespace DialogueEditor.Windows {
 
             IOUtility.Initialize(_graphViewElement, _fileNameTextField.value);
             IOUtility.Save(graphOnly);
+            ClearDirtyState();
         }
 
-        void SaveGraphAs() {
+        public void SaveCurrentGraph() {
+            Save(true);
+        }
+
+        public void SaveGraphAs() {
             if (string.IsNullOrEmpty(_fileNameTextField.value)) {
                 EditorUtility.DisplayDialog("Invalid file name.",
                                             "Please ensure the file name you've typed in is valid.", "Roger!");
@@ -147,6 +162,7 @@ namespace DialogueEditor.Windows {
 
             IOUtility.Initialize(_graphViewElement, _fileNameTextField.value);
             IOUtility.SaveGraphAs();
+            ClearDirtyState();
         }
 
         void Load() {
@@ -161,6 +177,7 @@ namespace DialogueEditor.Windows {
 
             IOUtility.Initialize(_graphViewElement, Path.GetFileNameWithoutExtension(filePath));
             IOUtility.Load();
+            ClearDirtyState();
         }
         
         void OnInspection() {
@@ -195,6 +212,30 @@ namespace DialogueEditor.Windows {
 
         public GraphViewElement GetGraphViewElement() {
             return _graphViewElement;
+        }
+
+        void MarkGraphDirty() {
+            if (_isGraphDirty)
+                return;
+
+            _isGraphDirty = true;
+            UpdateSaveIndicator();
+        }
+
+        void ClearDirtyState() {
+            if (!_isGraphDirty)
+                return;
+
+            _isGraphDirty = false;
+            UpdateSaveIndicator();
+        }
+
+        void UpdateSaveIndicator() {
+            if (_saveBadge == null)
+                return;
+
+            _saveBadge.style.display = _isGraphDirty ? DisplayStyle.Flex : DisplayStyle.None;
+            _saveBadge.tooltip = _isGraphDirty ? "You have unsaved changes" : string.Empty;
         }
 
         void CreateErrorInfoWindows() {

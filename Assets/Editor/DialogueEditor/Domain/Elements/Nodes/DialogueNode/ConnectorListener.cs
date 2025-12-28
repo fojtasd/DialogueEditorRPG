@@ -23,7 +23,7 @@ namespace DialogueEditor.Elements {
             if (graphView == null)
                 return;
 
-            Vector2 graphPosition = ConvertToGraphPosition(position);
+            Vector2 graphPosition = ConvertToGraphPosition(graphView, position);
             GroupElement dropGroup = FindGroupAt(graphView, graphPosition);
             Vector2 dialoguePosition = dropGroup != null ? graphPosition : GetDialogueSpawnPosition(originatingNode, graphPosition);
             Vector2 conditionalPosition = dropGroup != null ? graphPosition : GetConditionalSpawnPosition(originatingNode, graphPosition);
@@ -34,7 +34,7 @@ namespace DialogueEditor.Elements {
             GenericMenu menu = new();
             bool originatingIsRelay = originatingNode is RelayNode;
 
-            menu.AddItem(new GUIContent("Create Dialogue Node"),
+            menu.AddItem(new GUIContent("💬 Create Dialogue Node"),
                          false,
                          () => CreateNodeAndConnect(graphView,
                                                     outputPort,
@@ -42,7 +42,7 @@ namespace DialogueEditor.Elements {
                                                     pos => graphView.CreateDialogueNode(pos),
                                                     dropGroup));
 
-            menu.AddItem(new GUIContent("Create Conditional Node"),
+            menu.AddItem(new GUIContent("❓Create Conditional Node"),
                          false,
                          () => CreateNodeAndConnect(graphView,
                                                     outputPort,
@@ -51,9 +51,9 @@ namespace DialogueEditor.Elements {
                                                     dropGroup));
 
             if (originatingIsRelay) {
-                menu.AddDisabledItem(new GUIContent("Create Relay Node"));
+                menu.AddDisabledItem(new GUIContent("🔀 Create Relay Node"));
             } else {
-                menu.AddItem(new GUIContent("Create Relay Node"),
+                menu.AddItem(new GUIContent("🔀 Create Relay Node"),
                              false,
                              () => CreateNodeAndConnect(graphView,
                                                         outputPort,
@@ -79,7 +79,8 @@ namespace DialogueEditor.Elements {
                                          Port originPort,
                                          Vector2 position,
                                          Func<Vector2, BaseNode> factory,
-                                         GroupElement targetGroup) {
+                                         GroupElement targetGroup,
+                                         bool frameSelection = false) {
             if (graphView == null || originPort == null || factory == null)
                 return;
 
@@ -100,7 +101,8 @@ namespace DialogueEditor.Elements {
             if (inputPort == null)
                 return;
 
-            graphView.DisconnectPortConnections(originPort);
+            List<Edge> disconnectedEdges = graphView.DisconnectPortConnections(originPort);
+            graphView.UndoManager?.RecordConnectionsDeleted(disconnectedEdges);
 
             var newEdge = new EdgeElement { output = originPort, input = inputPort };
 
@@ -109,23 +111,28 @@ namespace DialogueEditor.Elements {
 
             graphView.AddElement(newEdge);
             UpdateConnectionMetadata(originPort, newNode, newEdge);
-            graphView.FrameSelection();
+            graphView.UndoManager?.RecordConnectionsCreated(new[] { newEdge });
+            if (frameSelection)
+                graphView.FrameSelection();
         }
 
-        static Vector2 ConvertToGraphPosition(Vector2 cursorPosition) {
-            return cursorPosition;
+        static Vector2 ConvertToGraphPosition(GraphViewElement graphView, Vector2 cursorPosition) {
+            if (graphView == null)
+                return cursorPosition;
+
+            return graphView.contentViewContainer.WorldToLocal(cursorPosition);
         }
 
         static Vector2 GetDialogueSpawnPosition(BaseNode originNode, Vector2 fallback) {
-            return GetSpawnPosition(originNode, fallback, 180f, 0f);
+            return GetSpawnPosition(originNode, fallback, 0, 0f);
         }
 
         static Vector2 GetConditionalSpawnPosition(BaseNode originNode, Vector2 fallback) {
-            return GetSpawnPosition(originNode, fallback, 220f, 0f);
+            return GetSpawnPosition(originNode, fallback, 0, 0f);
         }
 
         static Vector2 GetRelaySpawnPosition(BaseNode originNode, Vector2 fallback) {
-            return GetSpawnPosition(originNode, fallback, 150f, 0f);
+            return GetSpawnPosition(originNode, fallback, 0, 0f);
         }
 
         static Vector2 GetSpawnPosition(BaseNode originNode,
@@ -136,9 +143,15 @@ namespace DialogueEditor.Elements {
                 return fallback;
 
             Rect nodeRect = originNode.GetPosition();
-            float horizontalOffset = Mathf.Max(minHorizontalOffset, nodeRect.width * 0.6f);
-            float baseY = nodeRect.yMin + verticalOffset;
-            return new Vector2(nodeRect.xMax + horizontalOffset, baseY);
+            Vector2 spawnPosition = fallback;
+
+            if (float.IsNaN(spawnPosition.x) || float.IsInfinity(spawnPosition.x))
+                spawnPosition.x = nodeRect.xMax + Mathf.Max(minHorizontalOffset, nodeRect.width * 0.6f);
+
+            if (float.IsNaN(spawnPosition.y) || float.IsInfinity(spawnPosition.y))
+                spawnPosition.y = nodeRect.yMin + verticalOffset;
+
+            return spawnPosition;
         }
 
         static void DisconnectTemporaryEdge(Edge edge) {
@@ -175,17 +188,16 @@ namespace DialogueEditor.Elements {
             newEdge?.ApplyCustomStyle();
         }
 
-        static GroupElement FindGroupAt(GraphViewElement graphView, Vector2 dropPosition) {
+        static GroupElement FindGroupAt(GraphViewElement graphView, Vector2 localDropPosition) {
             if (graphView == null)
                 return null;
 
-            Vector2 localPosition = graphView.contentViewContainer.WorldToLocal(dropPosition);
             List<GroupElement> groups = graphView.Query<GroupElement>().ToList();
 
             foreach (GroupElement group in groups) {
                 Rect groupRect = group.GetPosition();
 
-                if (groupRect.Contains(localPosition) || groupRect.Contains(dropPosition))
+                if (groupRect.Contains(localDropPosition))
                     return group;
             }
 

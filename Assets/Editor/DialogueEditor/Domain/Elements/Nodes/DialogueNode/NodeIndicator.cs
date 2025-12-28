@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using DialogueSystem.Node;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace DialogueEditor.Elements {
@@ -37,3 +36,4 @@ namespace DialogueEditor.Elements {
         }
     }
 }
+#endif

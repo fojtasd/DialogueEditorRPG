@@ -1,0 +1,393 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c19cde88bdf956e41bb43082d1f73b25, type: 3}
+  m_Name: DEMO_Graph
+  m_EditorClassIdentifier: DialogueEditorAssembly::DialogueEditor.Data.Save.GraphSaveDataSO
+  <FileName>k__BackingField: DEMO
+  <Groups>k__BackingField:
+  - <ID>k__BackingField: c2837261-ca2d-4e01-9d6b-7f9880bf7658
+    <Name>k__BackingField: WifeQuestions
+    <Position>k__BackingField: {x: 2658.6667, y: -602.66675}
+  <Nodes>k__BackingField:
+  - <ID>k__BackingField: 15b60aac-fa4f-482e-802e-1fa4de301920
+    <NodeName>k__BackingField: 3
+    <Text>k__BackingField: I dont speak to ugly people.
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 886.6667, y: 522.6667}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: e6a12d05-7391-4a2d-8512-a5386d685f3c
+    <NodeName>k__BackingField: 2
+    <Text>k__BackingField: 'Good day, good looking lad. '
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: c0115b25-3f39-4ed8-8a22-07a51506dd05
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 1
+    <Position>k__BackingField: {x: 886.6667, y: 31.333332}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: c0115b25-3f39-4ed8-8a22-07a51506dd05
+    <NodeName>k__BackingField: 4
+    <Text>k__BackingField: What can I do for you?
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 2aaf2b4b-33b8-41f9-bfe3-baf7c2429261
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: fc1fa021-e832-4e40-a393-f5699349d21d
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: d39a7f7a-876a-49a0-9092-b260e41bae87
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 1
+    <Position>k__BackingField: {x: 1508.6666, y: 31.333332}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: 2aaf2b4b-33b8-41f9-bfe3-baf7c2429261
+    <NodeName>k__BackingField: 5
+    <Text>k__BackingField: Can you tell me more about dissapearing of Jane Doe?
+    <SpeakerType>k__BackingField: 1
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 59647b2c-79a3-4c59-b8d3-cfb7b60ca4ec
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 2094, y: -281.33334}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: fc1fa021-e832-4e40-a393-f5699349d21d
+    <NodeName>k__BackingField: 6
+    <Text>k__BackingField: Do you want to barter?
+    <SpeakerType>k__BackingField: 1
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 2094, y: 0}
+    <NodeSettings>k__BackingField:
+    - rid: 2331280852818591826
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: d39a7f7a-876a-49a0-9092-b260e41bae87
+    <NodeName>k__BackingField: 7
+    <Text>k__BackingField: I have changed my mind. <EXIT>
+    <SpeakerType>k__BackingField: 1
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 2094, y: 326.66666}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: 59647b2c-79a3-4c59-b8d3-cfb7b60ca4ec
+    <NodeName>k__BackingField: 8
+    <Text>k__BackingField: What exactly do you want to know?
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Last time
+      <NodeID>k__BackingField: 2c1714ef-79f8-4c62-aa84-843e77704ca6
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: c1660dc3-6e84-43f7-89c0-69653fec5bce
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 6b1730d1-9978-45b3-94ec-9527c0e22dd1
+    - <Text>k__BackingField: Return back to previous menu choice
+      <NodeID>k__BackingField: c0115b25-3f39-4ed8-8a22-07a51506dd05
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: c2837261-ca2d-4e01-9d6b-7f9880bf7658
+    <ChoiceType>k__BackingField: 1
+    <Position>k__BackingField: {x: 2682, y: -226.66667}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: 2c1714ef-79f8-4c62-aa84-843e77704ca6
+    <NodeName>k__BackingField: 9
+    <Text>k__BackingField: When have you seen your wife for the last time?
+    <SpeakerType>k__BackingField: 1
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: e049aea6-8836-428e-ada7-1720ba7bfc7a
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: c2837261-ca2d-4e01-9d6b-7f9880bf7658
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 3317.3335, y: -545.3333}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: c1660dc3-6e84-43f7-89c0-69653fec5bce
+    <NodeName>k__BackingField: 10
+    <Text>k__BackingField: She was member of C.A.S.C.O.? Can you tell me more?
+    <SpeakerType>k__BackingField: 1
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: c2837261-ca2d-4e01-9d6b-7f9880bf7658
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 3317.3335, y: -315.33334}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: 6b1730d1-9978-45b3-94ec-9527c0e22dd1
+    <NodeName>k__BackingField: 11
+    <Text>k__BackingField: Dialogue text
+    <SpeakerType>k__BackingField: 1
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: c2837261-ca2d-4e01-9d6b-7f9880bf7658
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 3317.3335, y: -68.66667}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: e049aea6-8836-428e-ada7-1720ba7bfc7a
+    <NodeName>k__BackingField: 12
+    <Text>k__BackingField: I believe it was on the 25th of July.
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: c2837261-ca2d-4e01-9d6b-7f9880bf7658
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 3830.6667, y: -545.3333}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  - <ID>k__BackingField: 9dc77888-9e93-4f81-8f53-979765b526ab
+    <NodeName>k__BackingField: 1
+    <Text>k__BackingField: 
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField: []
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: FAILURE
+        <NodeID>k__BackingField: 15b60aac-fa4f-482e-802e-1fa4de301920
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: SUCCESS
+        <NodeID>k__BackingField: e6a12d05-7391-4a2d-8512-a5386d685f3c
+        <OutputType>k__BackingField: 1
+      expectedValue: 5
+      kind: 1
+      attributeType: 4
+      skillType: 0
+    <GroupID>k__BackingField: 
+    <ChoiceType>k__BackingField: 2
+    <Position>k__BackingField: {x: 648, y: 242.66666}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 1
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
+  <StickyNotes>k__BackingField:
+  - <Text>k__BackingField: Dead Wife Sector
+    <Position>k__BackingField: {x: 2700.657, y: -345.39713}
+    <Size>k__BackingField: {x: 400, y: 140}
+    <ColorClass>k__BackingField: sticky-note--yellow
+    <IsLocked>k__BackingField: 0
+    <IsBold>k__BackingField: 1
+    <FontSize>k__BackingField: 36
+  <OldGroupNames>k__BackingField:
+  - WifeQuestions
+  <OldUngroupedNodeNames>k__BackingField:
+  - 3
+  - 2
+  - 4
+  - 5
+  - 6
+  - 7
+  - 1
+  <OldGroupedNodeNames>k__BackingField:
+    list:
+    - key: WifeQuestions
+      value:
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+  <DialogueContainerSO>k__BackingField: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 2331280852818591826
+      type: {class: ConsequenceSetting, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
+      data:
+        kind: 6
+        payload:
+          rid: 2331280852818591827
+    - rid: 2331280852818591827
+      type: {class: StartTradeConsequencePayload, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
+      data: 

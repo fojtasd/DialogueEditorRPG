@@ -90,6 +90,44 @@ namespace DialogueEditor.Domain.Undo {
             _redoStack.Clear();
         }
 
+        public void RecordConnectionsCreated(IEnumerable<Edge> edges) {
+            if (!IsRecordingEnabled)
+                return;
+
+            List<ConnectionActionBase.ConnectionRecord> records = BuildConnectionRecords(edges);
+
+            if (records.Count == 0)
+                return;
+
+            PushAndClear(new ConnectionCreationAction(_graphView, records));
+        }
+
+        public void RecordConnectionsDeleted(IEnumerable<Edge> edges) {
+            if (!IsRecordingEnabled)
+                return;
+
+            List<ConnectionActionBase.ConnectionRecord> records = BuildConnectionRecords(edges);
+
+            if (records.Count == 0)
+                return;
+
+            PushAndClear(new ConnectionDeletionAction(_graphView, records));
+        }
+
+        public void RecordElementsMoved(IEnumerable<GraphElementsMoveRecord> moveRecords) {
+            if (!IsRecordingEnabled)
+                return;
+
+            List<GraphElementsMoveRecord> records = moveRecords?
+                                                    .Where(record => record.HasMovement)
+                                                    .ToList();
+
+            if (records == null || records.Count == 0)
+                return;
+
+            PushAndClear(new GraphElementsMoveAction(_graphView, records));
+        }
+
         public bool TryHandleNodeDeletion(BaseNode node) {
             if (node == null)
                 return false;
@@ -136,6 +174,40 @@ namespace DialogueEditor.Domain.Undo {
             }
 
             _undoStack.Push(action);
+        }
+
+        List<ConnectionActionBase.ConnectionRecord> BuildConnectionRecords(IEnumerable<Edge> edges) {
+            var connectionRecords = new List<ConnectionActionBase.ConnectionRecord>();
+
+            if (edges == null)
+                return connectionRecords;
+
+            foreach (Edge edge in edges) {
+                if (edge?.output?.node is not BaseNode sourceNode)
+                    continue;
+
+                if (edge.input?.node is not BaseNode targetNode)
+                    continue;
+
+                if (edge.output.userData == null)
+                    continue;
+
+                connectionRecords.Add(new ConnectionActionBase.ConnectionRecord(sourceNode.ID,
+                                                                                sourceNode.NodeName,
+                                                                                targetNode.ID,
+                                                                                targetNode.NodeName,
+                                                                                edge.output.userData));
+            }
+
+            return connectionRecords;
+        }
+
+        void PushAndClear(IGraphUndoAction action) {
+            if (action == null)
+                return;
+
+            _undoStack.Push(action);
+            _redoStack.Clear();
         }
 
         sealed class RecordingScope : IDisposable {
@@ -427,6 +499,350 @@ namespace DialogueEditor.Domain.Undo {
 
             string name = string.IsNullOrWhiteSpace(data.NodeName) ? "(unnamed)" : data.NodeName;
             return $"{typeLabel} \"{name}\"";
+        }
+
+        abstract class ConnectionActionBase : IGraphUndoAction {
+            protected readonly GraphViewElement GraphView;
+            readonly List<ConnectionRecord> _connections;
+
+            protected ConnectionActionBase(GraphViewElement graphView,
+                                           IEnumerable<ConnectionRecord> connections,
+                                           string singleDescription,
+                                           string pluralDescription) {
+                GraphView = graphView;
+                _connections = connections?.ToList() ?? new List<ConnectionRecord>();
+
+                Description = _connections.Count switch {
+                    0 => pluralDescription,
+                    1 => $"{singleDescription} {_connections[0].GetLabel()}",
+                    _ => $"{pluralDescription} ({_connections.Count})"
+                };
+            }
+
+            protected IReadOnlyList<ConnectionRecord> Connections => _connections;
+
+            public string Description { get; }
+
+            public abstract void Undo();
+            public abstract void Redo();
+
+            protected bool Disconnect(ConnectionRecord record) {
+                BaseNode sourceNode = GraphView.FindNodeById(record.SourceNodeId);
+                BaseNode targetNode = GraphView.FindNodeById(record.TargetNodeId);
+
+                if (sourceNode == null)
+                    return false;
+
+                Port outputPort = GraphView.FindOutputPort(sourceNode, record.PortUserData);
+
+                if (outputPort == null)
+                    return false;
+
+                bool disconnected = false;
+
+                foreach (Edge connection in outputPort.connections.ToList()) {
+                    if (connection?.input?.node is not BaseNode inputNode)
+                        continue;
+
+                    if (!string.Equals(inputNode.ID, record.TargetNodeId, StringComparison.Ordinal))
+                        continue;
+
+                    outputPort.Disconnect(connection);
+                    connection.input?.Disconnect(connection);
+                    GraphView.RemoveElement(connection);
+                    disconnected = true;
+                }
+
+                if (!disconnected)
+                    return false;
+
+                ClearConnectionMetadata(record.PortUserData);
+                RefreshNode(sourceNode);
+                if (targetNode != null)
+                    RefreshNode(targetNode);
+
+                return true;
+            }
+
+            protected bool Connect(ConnectionRecord record) {
+                BaseNode sourceNode = GraphView.FindNodeById(record.SourceNodeId);
+                BaseNode targetNode = GraphView.FindNodeById(record.TargetNodeId);
+
+                if (sourceNode == null || targetNode == null)
+                    return false;
+
+                Port outputPort = GraphView.FindOutputPort(sourceNode, record.PortUserData);
+                Port inputPort = GraphView.GetPrimaryInputPort(targetNode);
+
+                if (outputPort == null || inputPort == null)
+                    return false;
+
+                if (outputPort.connections.Any(edge => edge != null && edge.input == inputPort))
+                    return false;
+
+                EdgeElement edge = GraphView.ConnectPorts(outputPort, inputPort);
+
+                if (edge == null)
+                    return false;
+
+                ApplyConnectionMetadata(record.PortUserData, targetNode.ID);
+                edge.ApplyCustomStyle();
+                RefreshNode(sourceNode);
+                RefreshNode(targetNode);
+
+                return true;
+            }
+
+            protected static void RefreshNode(BaseNode node) {
+                if (node == null)
+                    return;
+
+                node.schedule.Execute(node.RefreshUI).ExecuteLater(50);
+                node.RefreshUI();
+            }
+
+            protected static void ClearConnectionMetadata(object portUserData) {
+                switch (portUserData) {
+                    case DialogueNodeSaveData dialogueData:
+                        dialogueData.NodeID = null;
+                        break;
+                    case ConditionalNodeSaveData conditionalData:
+                        conditionalData.NodeID = null;
+                        break;
+                    case RelayNodeSaveData relayData:
+                        relayData.NodeID = null;
+                        break;
+                }
+            }
+
+            protected static void ApplyConnectionMetadata(object portUserData, string targetNodeId) {
+                switch (portUserData) {
+                    case DialogueNodeSaveData dialogueData:
+                        dialogueData.NodeID = targetNodeId;
+                        break;
+                    case ConditionalNodeSaveData conditionalData:
+                        conditionalData.NodeID = targetNodeId;
+                        break;
+                    case RelayNodeSaveData relayData:
+                        relayData.NodeID = targetNodeId;
+                        break;
+                }
+            }
+
+            public sealed class ConnectionRecord {
+                public ConnectionRecord(string sourceNodeId,
+                                        string sourceName,
+                                        string targetNodeId,
+                                        string targetName,
+                                        object portUserData) {
+                    SourceNodeId = sourceNodeId;
+                    SourceName = sourceName;
+                    TargetNodeId = targetNodeId;
+                    TargetName = targetName;
+                    PortUserData = portUserData;
+                }
+
+                public string SourceNodeId { get; }
+                public string SourceName { get; }
+                public string TargetNodeId { get; }
+                public string TargetName { get; }
+                public object PortUserData { get; }
+
+                public string GetLabel() {
+                    string source = string.IsNullOrWhiteSpace(SourceName) ? "node" : $"\"{SourceName}\"";
+                    string target = string.IsNullOrWhiteSpace(TargetName) ? "node" : $"\"{TargetName}\"";
+                    return $"{source} → {target}";
+                }
+            }
+        }
+
+        sealed class ConnectionCreationAction : ConnectionActionBase {
+            public ConnectionCreationAction(GraphViewElement graphView, IEnumerable<ConnectionRecord> connections)
+                : base(graphView, connections, "Connect", "Connect links") { }
+
+            public override void Undo() {
+                bool changed = false;
+
+                foreach (ConnectionRecord record in Connections) {
+                    if (Disconnect(record))
+                        changed = true;
+                }
+
+                if (changed)
+                    GraphView.NotifyGraphChanged();
+            }
+
+            public override void Redo() {
+                bool changed = false;
+
+                foreach (ConnectionRecord record in Connections) {
+                    if (Connect(record))
+                        changed = true;
+                }
+
+                if (changed)
+                    GraphView.NotifyGraphChanged();
+            }
+        }
+
+        sealed class ConnectionDeletionAction : ConnectionActionBase {
+            public ConnectionDeletionAction(GraphViewElement graphView, IEnumerable<ConnectionRecord> connections)
+                : base(graphView, connections, "Disconnect", "Disconnect links") { }
+
+            public override void Undo() {
+                bool changed = false;
+
+                foreach (ConnectionRecord record in Connections) {
+                    if (Connect(record))
+                        changed = true;
+                }
+
+                if (changed)
+                    GraphView.NotifyGraphChanged();
+            }
+
+            public override void Redo() {
+                bool changed = false;
+
+                foreach (ConnectionRecord record in Connections) {
+                    if (Disconnect(record))
+                        changed = true;
+                }
+
+                if (changed)
+                    GraphView.NotifyGraphChanged();
+            }
+        }
+
+        sealed class GraphElementsMoveAction : IGraphUndoAction {
+            readonly GraphViewElement _graphView;
+            readonly List<GraphElementsMoveRecord> _records;
+
+            public GraphElementsMoveAction(GraphViewElement graphView, IEnumerable<GraphElementsMoveRecord> records) {
+                _graphView = graphView;
+                _records = records?.ToList() ?? new List<GraphElementsMoveRecord>();
+
+                Description = _records.Count switch {
+                    0 => "Move elements",
+                    1 => $"Move {_records[0].GetLabel()}",
+                    _ => $"Move {_records.Count} elements"
+                };
+            }
+
+            public string Description { get; }
+
+            public void Undo() {
+                Apply(record => record.OldPosition);
+            }
+
+            public void Redo() {
+                Apply(record => record.NewPosition);
+            }
+
+            void Apply(Func<GraphElementsMoveRecord, Rect> selector) {
+                bool changed = false;
+
+                foreach (GraphElementsMoveRecord record in _records) {
+                    if (!record.TryResolve(_graphView, out GraphElement element))
+                        continue;
+
+                    Rect targetRect = selector(record);
+
+                    switch (element) {
+                        case BaseNode node:
+                            node.SetPosition(targetRect);
+                            node.RefreshUI();
+                            changed = true;
+                            break;
+                        case GroupElement group:
+                            group.SetPosition(targetRect);
+                            changed = true;
+                            break;
+                    }
+                }
+
+                if (changed)
+                    _graphView.NotifyGraphChanged();
+            }
+        }
+
+        public readonly struct GraphElementsMoveRecord {
+            public GraphElementsMoveRecord(string nodeId,
+                                           string nodeName,
+                                           string groupId,
+                                           string groupName,
+                                           Rect oldPosition,
+                                           Rect newPosition) {
+                NodeId = nodeId;
+                NodeName = nodeName;
+                GroupId = groupId;
+                GroupName = groupName;
+                OldPosition = oldPosition;
+                NewPosition = newPosition;
+            }
+
+            public string NodeId { get; }
+            public string NodeName { get; }
+            public string GroupId { get; }
+            public string GroupName { get; }
+            public Rect OldPosition { get; }
+            public Rect NewPosition { get; }
+
+            public bool HasMovement => !Approximately(OldPosition.position, NewPosition.position);
+
+            public string GetLabel() {
+                if (!string.IsNullOrEmpty(NodeId))
+                    return string.IsNullOrWhiteSpace(NodeName) ? "node" : $"node \"{NodeName}\"";
+
+                if (!string.IsNullOrEmpty(GroupId))
+                    return string.IsNullOrWhiteSpace(GroupName) ? "group" : $"group \"{GroupName}\"";
+
+                return "element";
+            }
+
+            public bool TryResolve(GraphViewElement graphView, out GraphElement element) {
+                element = null;
+
+                if (!string.IsNullOrEmpty(NodeId)) {
+                    element = graphView.FindNodeById(NodeId);
+                    return element != null;
+                }
+
+                if (!string.IsNullOrEmpty(GroupId)) {
+                    element = graphView.FindGroupById(GroupId);
+                    return element != null;
+                }
+
+                return false;
+            }
+
+            public static GraphElementsMoveRecord ForNode(BaseNode node, Rect oldPosition, Rect newPosition) {
+                if (node == null)
+                    return default;
+
+                return new GraphElementsMoveRecord(node.ID,
+                                                   node.NodeName,
+                                                   null,
+                                                   null,
+                                                   oldPosition,
+                                                   newPosition);
+            }
+
+            public static GraphElementsMoveRecord ForGroup(GroupElement group, Rect oldPosition, Rect newPosition) {
+                if (group == null)
+                    return default;
+
+                return new GraphElementsMoveRecord(null,
+                                                   null,
+                                                   group.ID,
+                                                   group.title,
+                                                   oldPosition,
+                                                   newPosition);
+            }
+
+            static bool Approximately(Vector2 a, Vector2 b) {
+                return Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y);
+            }
         }
     }
 }

@@ -11,17 +11,18 @@ using UnityEngine.UIElements;
 namespace DialogueEditor.Elements {
     public sealed class ConditionalNode : BaseNode {
         Port _failOutputPort;
+        Port _successOutputPort;
         VisualElement _row0;
         VisualElement _row1;
         VisualElement _row2;
-        Port _successOutputPort;
+        
         public AttributeType AttributeType;
+        public SkillType SkillType;
         public ConditionTargetType ConditionTargetType;
 
         public int ExpectedValue;
 
         public ConditionalNodeSaveData FailureNodeData = new() { OutputType = ConditionalOutputType.Failure, Text = "FAILURE" };
-        public SkillType SkillType;
         public ConditionalNodeSaveData SuccessNodeData = new() { OutputType = ConditionalOutputType.Success, Text = "SUCCESS" };
 
         public ConditionalNode() {

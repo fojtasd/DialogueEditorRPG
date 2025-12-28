@@ -32,7 +32,9 @@ namespace DialogueEditor.Elements {
                                                                });
             ConfigureFileNameLabelWidth();
 
-            SaveButton = new ToolbarMenu { text = "Save", style = { alignSelf = Align.Center, height = 20f } };
+            SaveButton = new ToolbarMenu { text = "Save", style = { alignSelf = Align.Center, height = 20f, position = Position.Relative } };
+            SaveBadge = CreateSaveBadge();
+            SaveButton.Add(SaveBadge);
             SaveButton.menu.AppendAction("Save Graph", _ => onSave(true), DropdownMenuAction.AlwaysEnabled);
             SaveButton.menu.AppendAction("Save Graph As...", _ => onSaveGraphAs(), DropdownMenuAction.AlwaysEnabled);
             SaveButton.menu.AppendAction("Save Graph and Convert to Scriptable Objects", _ => onSave(false), DropdownMenuAction.AlwaysEnabled);
@@ -67,6 +69,7 @@ namespace DialogueEditor.Elements {
 
         public TextField FileNameTextField { get; }
         public ToolbarMenu SaveButton { get; }
+        public VisualElement SaveBadge { get; }
         public Button ErrorIndicatorButton { get; }
 
 
@@ -76,6 +79,22 @@ namespace DialogueEditor.Elements {
             labelElement.style.width = FileNameLabelWidth;
             labelElement.style.minWidth = FileNameLabelWidth;
             labelElement.style.maxWidth = FileNameLabelWidth;
+        }
+
+        static VisualElement CreateSaveBadge() {
+            var badge = new Label("●") {
+                pickingMode = PickingMode.Ignore,
+                style = {
+                    position = Position.Absolute,
+                    top = -6,
+                    right = -8,
+                    fontSize = 14,
+                    color = Color.red,
+                    display = DisplayStyle.None
+                }
+            };
+            badge.AddToClassList("ds-toolbar__save-badge");
+            return badge;
         }
 
         static VisualElement CreateSeparator() {
