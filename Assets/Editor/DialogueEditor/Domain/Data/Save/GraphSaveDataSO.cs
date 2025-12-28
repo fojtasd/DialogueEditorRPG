@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using Common;
+using DialogueSystem;
 using UnityEngine;
 
 namespace DialogueEditor.Data.Save {
@@ -12,6 +13,7 @@ namespace DialogueEditor.Data.Save {
         [field: SerializeField] public List<string> OldGroupNames { get; set; }
         [field: SerializeField] public List<string> OldUngroupedNodeNames { get; set; }
         [field: SerializeField] public SerializableDictionary<string, List<string>> OldGroupedNodeNames { get; set; }
+        [field: SerializeField] public DialogueContainerSO DialogueContainerSO { get; set; }
 
         public void Initialize(string fileName) {
             FileName = fileName;

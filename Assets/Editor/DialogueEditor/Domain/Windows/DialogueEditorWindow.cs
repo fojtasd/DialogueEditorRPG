@@ -76,6 +76,8 @@ namespace DialogueEditor.Windows {
                                                     Save,
                                                     SaveGraphAs,
                                                     Load,
+                                                    OnInspection,
+                                                    OnUndoRedoHistory,
                                                     Clear,
                                                     ResetGraph,
                                                     ToggleErrorInfo);
@@ -160,6 +162,14 @@ namespace DialogueEditor.Windows {
             IOUtility.Initialize(_graphViewElement, Path.GetFileNameWithoutExtension(filePath));
             IOUtility.Load();
         }
+        
+        void OnInspection() {
+            GraphInspectorWindow.Open(this, _graphViewElement);
+        }
+        
+        void OnUndoRedoHistory() {
+            UndoRedoHistoryWindow.Open(this, _graphViewElement);
+        }
 
         void Clear() {
             _graphViewElement.ClearGraph();
@@ -181,6 +191,10 @@ namespace DialogueEditor.Windows {
 
         public static void UpdateFileName(string newFileName) {
             _fileNameTextField.value = newFileName;
+        }
+
+        public GraphViewElement GetGraphViewElement() {
+            return _graphViewElement;
         }
 
         void CreateErrorInfoWindows() {

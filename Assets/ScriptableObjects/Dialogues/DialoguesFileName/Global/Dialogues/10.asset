@@ -22,19 +22,19 @@ MonoBehaviour:
       Brnenka.
     <SpeakerType>k__BackingField: 0
     <NodeSettings>k__BackingField:
-    - rid: 2331280835563225350
+    - rid: 2331280852085899355
   <Choices>k__BackingField:
   - <NextDialogue>k__BackingField: {fileID: 11400000, guid: 58b432cea97b68649a348b4b01cabf18, type: 2}
   references:
     version: 2
     RefIds:
-    - rid: 2331280835563225350
+    - rid: 2331280852085899355
       type: {class: ConsequenceSetting, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         kind: 3
         payload:
-          rid: 2331280835563225351
-    - rid: 2331280835563225351
+          rid: 2331280852085899356
+    - rid: 2331280852085899356
       type: {class: GiveIntelConsequencePayload, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         intelReference: Recently deceived wife

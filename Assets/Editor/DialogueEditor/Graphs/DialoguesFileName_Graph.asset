@@ -16,7 +16,7 @@ MonoBehaviour:
   <Groups>k__BackingField:
   - <ID>k__BackingField: 51d6a07f-6278-46e3-94b7-45e7f89f5608
     <Name>k__BackingField: WelcomeCheck
-    <Position>k__BackingField: {x: -161.99998, y: 180.00002}
+    <Position>k__BackingField: {x: -162, y: 179.33331}
   - <ID>k__BackingField: 54eec528-35ce-416e-a1b2-1bdc8fcd4b59
     <Name>k__BackingField: DialogueWaypoint
     <Position>k__BackingField: {x: 1303.3333, y: 334.6667}
@@ -125,7 +125,7 @@ MonoBehaviour:
     <ChoiceType>k__BackingField: 1
     <Position>k__BackingField: {x: 2534.6667, y: 394}
     <NodeSettings>k__BackingField:
-    - rid: 2331280835563225359
+    - rid: 2331280852085899359
     <NodeType>k__BackingField: 0
     <RelayConnection>k__BackingField:
       <NodeID>k__BackingField: 
@@ -214,7 +214,7 @@ MonoBehaviour:
     <ChoiceType>k__BackingField: 0
     <Position>k__BackingField: {x: 3132.6667, y: 394}
     <NodeSettings>k__BackingField:
-    - rid: 2331280835563225360
+    - rid: 2331280852085899360
     <NodeType>k__BackingField: 0
     <RelayConnection>k__BackingField:
       <NodeID>k__BackingField: 
@@ -243,33 +243,6 @@ MonoBehaviour:
     <NodeType>k__BackingField: 2
     <RelayConnection>k__BackingField:
       <NodeID>k__BackingField: eda88ab7-064b-4ac1-96f5-08c8fbb74de7
-  - <ID>k__BackingField: 1531785c-c471-409c-b3a5-2eae3279a28f
-    <NodeName>k__BackingField: 1
-    <Text>k__BackingField: You really cool.
-    <SpeakerType>k__BackingField: 0
-    <Choices>k__BackingField:
-    - <Text>k__BackingField: New Choice
-      <NodeID>k__BackingField: eda88ab7-064b-4ac1-96f5-08c8fbb74de7
-    <Conditionals>k__BackingField:
-      failure:
-        <Text>k__BackingField: 
-        <NodeID>k__BackingField: 
-        <OutputType>k__BackingField: 0
-      success:
-        <Text>k__BackingField: 
-        <NodeID>k__BackingField: 
-        <OutputType>k__BackingField: 0
-      expectedValue: 0
-      kind: 0
-      attributeType: 0
-      skillType: 0
-    <GroupID>k__BackingField: 51d6a07f-6278-46e3-94b7-45e7f89f5608
-    <ChoiceType>k__BackingField: 0
-    <Position>k__BackingField: {x: 148, y: 239.33334}
-    <NodeSettings>k__BackingField: []
-    <NodeType>k__BackingField: 0
-    <RelayConnection>k__BackingField:
-      <NodeID>k__BackingField: 
   - <ID>k__BackingField: 88670de0-1757-4a6c-93f6-37de74559c41
     <NodeName>k__BackingField: 8
     <Text>k__BackingField: 'I have changed my mind, i need to go. '
@@ -321,7 +294,7 @@ MonoBehaviour:
     <ChoiceType>k__BackingField: 0
     <Position>k__BackingField: {x: 2688, y: 729.3333}
     <NodeSettings>k__BackingField:
-    - rid: 2331280835563225361
+    - rid: 2331280852085899361
     <NodeType>k__BackingField: 0
     <RelayConnection>k__BackingField:
       <NodeID>k__BackingField: 
@@ -434,6 +407,33 @@ MonoBehaviour:
     <NodeType>k__BackingField: 0
     <RelayConnection>k__BackingField:
       <NodeID>k__BackingField: 
+  - <ID>k__BackingField: 1531785c-c471-409c-b3a5-2eae3279a28f
+    <NodeName>k__BackingField: 1
+    <Text>k__BackingField: You really cool.
+    <SpeakerType>k__BackingField: 0
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: eda88ab7-064b-4ac1-96f5-08c8fbb74de7
+    <Conditionals>k__BackingField:
+      failure:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      success:
+        <Text>k__BackingField: 
+        <NodeID>k__BackingField: 
+        <OutputType>k__BackingField: 0
+      expectedValue: 0
+      kind: 0
+      attributeType: 0
+      skillType: 0
+    <GroupID>k__BackingField: 51d6a07f-6278-46e3-94b7-45e7f89f5608
+    <ChoiceType>k__BackingField: 0
+    <Position>k__BackingField: {x: 148, y: 238.66666}
+    <NodeSettings>k__BackingField: []
+    <NodeType>k__BackingField: 0
+    <RelayConnection>k__BackingField:
+      <NodeID>k__BackingField: 
   - <ID>k__BackingField: a9966ead-a202-48dc-8a6a-3cbe38b1cbd6
     <NodeName>k__BackingField: 2
     <Text>k__BackingField: 
@@ -491,35 +491,36 @@ MonoBehaviour:
       value:
       - 5
       - 8
+  <DialogueContainerSO>k__BackingField: {fileID: 11400000, guid: de594810d4b0fbb4ea90a52a29231bc5, type: 2}
   references:
     version: 2
     RefIds:
-    - rid: 2331280835563225359
+    - rid: 2331280852085899359
       type: {class: AccessibilitySetting, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         kind: 0
         payload:
-          rid: 2331280835563225362
-    - rid: 2331280835563225360
+          rid: 2331280852085899362
+    - rid: 2331280852085899360
       type: {class: ConsequenceSetting, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         kind: 3
         payload:
-          rid: 2331280835563225363
-    - rid: 2331280835563225361
+          rid: 2331280852085899363
+    - rid: 2331280852085899361
       type: {class: AccessibilitySetting, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         kind: 5
         payload:
-          rid: 2331280835563225364
-    - rid: 2331280835563225362
+          rid: 2331280852085899364
+    - rid: 2331280852085899362
       type: {class: IsVisitableOnlyOncePayload, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data: 
-    - rid: 2331280835563225363
+    - rid: 2331280852085899363
       type: {class: GiveIntelConsequencePayload, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         intelReference: Recently deceived wife
-    - rid: 2331280835563225364
+    - rid: 2331280852085899364
       type: {class: IntelRequiredPayload, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         intelID: dead wife

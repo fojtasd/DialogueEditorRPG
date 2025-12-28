@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using Contracts.Contracts;
 using DialogueEditor.Data.Save;
 using DialogueEditor.Utilities;
@@ -26,6 +27,9 @@ namespace DialogueEditor.Elements {
         public ConditionalNode() {
             ChoiceType = ChoiceType.Conditional;
         }
+
+        IDisposable _nodeNameEditScope;
+        IDisposable _expectedValueEditScope;
 
         public void Draw() {
             extensionContainer.Clear();
@@ -83,6 +87,9 @@ namespace DialogueEditor.Elements {
             
             Label nodeNameLabel = new Label("Node Name") { style = { fontSize = 13 } };
             TextField nodeName = ElementUtility.CreateTextField(NodeName, null, callback => {
+                if (_nodeNameEditScope == null)
+                    _nodeNameEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Rename conditional node");
+
                 var target = (TextField)callback.target;
 
                 target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
@@ -109,6 +116,18 @@ namespace DialogueEditor.Elements {
                 NodeName = target.value;
                 GraphViewElement.AddGroupedNode(this, currentGroupElement);
             });
+            nodeName.RegisterCallback<FocusInEvent>(_ => {
+                _nodeNameEditScope?.Dispose();
+                _nodeNameEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Rename conditional node");
+            });
+            nodeName.RegisterCallback<FocusOutEvent>(_ => {
+                _nodeNameEditScope?.Dispose();
+                _nodeNameEditScope = null;
+            });
+            nodeName.RegisterCallback<DetachFromPanelEvent>(_ => {
+                _nodeNameEditScope?.Dispose();
+                _nodeNameEditScope = null;
+            });
             nodeName.style.fontSize = 13;
             nodeName.style.maxWidth = 50;
             nodeName.tooltip = Constants.NodeNameTooltip;
@@ -126,8 +145,10 @@ namespace DialogueEditor.Elements {
             RefreshUIInternal();
             EnumField ifNodeTypeDropdown = new("", ConditionTargetType) { tooltip = Constants.IfNodeTypeTooltip };
             ifNodeTypeDropdown.RegisterValueChangedCallback(evt => {
-                ConditionTargetType = (ConditionTargetType)evt.newValue;
-                RefreshUIInternal();
+                GraphViewElement.UndoManager.RecordNodeChange(this, "Change node condition target", () => {
+                    ConditionTargetType = (ConditionTargetType)evt.newValue;
+                    RefreshUIInternal();
+                });
             });
             ifNodeTypeDropdown.AddToClassList("cnode_type-dropdown");
 
@@ -157,13 +178,21 @@ namespace DialogueEditor.Elements {
             var skillDropdown = new EnumField("", SkillType);
 
             if (ConditionTargetType == ConditionTargetType.Attribute) {
-                attrDropdown.RegisterValueChangedCallback(e => AttributeType = (AttributeType)e.newValue);
+                attrDropdown.RegisterValueChangedCallback(e => {
+                    GraphViewElement.UndoManager.RecordNodeChange(this, "Change required attribute", () => {
+                        AttributeType = (AttributeType)e.newValue;
+                    });
+                });
                 attrDropdown.AddToClassList("cnode_attribute-dropdown");
                 _row2.Add(attrDropdown);
             }
 
             if (ConditionTargetType == ConditionTargetType.Skill) {
-                skillDropdown.RegisterValueChangedCallback(e => SkillType = (SkillType)e.newValue);
+                skillDropdown.RegisterValueChangedCallback(e => {
+                    GraphViewElement.UndoManager.RecordNodeChange(this, "Change required skill", () => {
+                        SkillType = (SkillType)e.newValue;
+                    });
+                });
                 skillDropdown.AddToClassList("cnode_skill-dropdown");
                 _row2.Add(skillDropdown);
             }
@@ -177,7 +206,24 @@ namespace DialogueEditor.Elements {
 
             var inputField = new IntegerField();
             inputField.SetValueWithoutNotify(ExpectedValue);
-            inputField.RegisterValueChangedCallback(evt => { ExpectedValue = evt.newValue; });
+            inputField.RegisterValueChangedCallback(evt => {
+                if (_expectedValueEditScope == null)
+                    _expectedValueEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Change condition threshold");
+
+                ExpectedValue = evt.newValue;
+            });
+            inputField.RegisterCallback<FocusInEvent>(_ => {
+                _expectedValueEditScope?.Dispose();
+                _expectedValueEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Change condition threshold");
+            });
+            inputField.RegisterCallback<FocusOutEvent>(_ => {
+                _expectedValueEditScope?.Dispose();
+                _expectedValueEditScope = null;
+            });
+            inputField.RegisterCallback<DetachFromPanelEvent>(_ => {
+                _expectedValueEditScope?.Dispose();
+                _expectedValueEditScope = null;
+            });
             inputField.AddToClassList("cnode__input-field");
 
             bottomContainer.Add(textLabel);

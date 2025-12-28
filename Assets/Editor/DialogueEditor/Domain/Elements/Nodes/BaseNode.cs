@@ -16,7 +16,6 @@ namespace DialogueEditor.Elements {
         public string ID { get; set; }
         public string NodeName { get; set; }
         public GroupElement GroupElement { get; set; }
-
         public ChoiceType ChoiceType { get; set; } = ChoiceType.SingleChoice;
 
         public virtual bool ShouldPersistToAssets => true;

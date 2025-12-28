@@ -6,12 +6,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace DialogueEditor.Elements {
-    public enum SaveCommandType {
-        GraphOnly,
-        GraphAndConvert,
-        ConvertOnly
-    }
-
     public class DialogueEditorToolbar : Toolbar {
         const float FileNameLabelWidth = 70f;
 
@@ -22,6 +16,8 @@ namespace DialogueEditor.Elements {
                                      Action<bool> onSave,
                                      Action onSaveGraphAs,
                                      Action onLoad,
+                                     Action onInspection,
+                                     Action onUndoRedoHistory,
                                      Action onClear,
                                      Action onReset,
                                      Action onToggleErrorInfo) {
@@ -40,7 +36,8 @@ namespace DialogueEditor.Elements {
             SaveButton.menu.AppendAction("Save Graph", _ => onSave(true), DropdownMenuAction.AlwaysEnabled);
             SaveButton.menu.AppendAction("Save Graph As...", _ => onSaveGraphAs(), DropdownMenuAction.AlwaysEnabled);
             SaveButton.menu.AppendAction("Save Graph and Convert to Scriptable Objects", _ => onSave(false), DropdownMenuAction.AlwaysEnabled);
-
+            Button inspectorButton = ElementUtility.CreateButton("Inspector", onInspection);
+            Button undoRedoButton = ElementUtility.CreateButton("Undo Redo History", onUndoRedoHistory);
             Button loadButton = ElementUtility.CreateButton("Load", onLoad);
             Button clearButton = ElementUtility.CreateButton("Clear", onClear);
             Button resetButton = ElementUtility.CreateButton("Reset", onReset);
@@ -60,6 +57,10 @@ namespace DialogueEditor.Elements {
             Add(resetButton);
             Add(CreateSeparator());
             Add(searchContainer);
+            Add(CreateSeparator());
+            Add(inspectorButton);
+            Add(CreateSeparator());
+            Add(undoRedoButton);
 
             this.AddStyleSheets("DSToolbarStyles");
         }

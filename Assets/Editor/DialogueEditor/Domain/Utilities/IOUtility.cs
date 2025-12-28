@@ -61,6 +61,7 @@ namespace DialogueEditor.Utilities {
             if (!saveGraphOnly) {
                 dialogueContainer = CreateAsset<DialogueContainerSO>(_containerFolderPath, _graphFileName);
                 dialogueContainer.Initialize(_graphFileName);
+                graphData.DialogueContainerSO = dialogueContainer;
             }
 
             SaveGroups(graphData, dialogueContainer);

@@ -18,6 +18,8 @@ namespace DialogueEditor.Elements {
         readonly List<INodeSetting> _nodeSettings = new();
 
         List<DialogueNodeSaveData> _choices = new();
+        IDisposable _nodeNameEditScope;
+        IDisposable _dialogueTextEditScope;
 
         public DialogueNode() {
             Model.NodeSettings = _nodeSettings;
@@ -82,6 +84,9 @@ namespace DialogueEditor.Elements {
             // NODE NAME
             var nodeNameLabel = new Label("Node Name") { style = { fontSize = 13 } };
             TextField nodeName = ElementUtility.CreateTextField(NodeName, null, callback => {
+                if (_nodeNameEditScope == null)
+                    _nodeNameEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Rename dialogue node");
+
                 var target = (TextField)callback.target;
 
                 target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
@@ -108,6 +113,18 @@ namespace DialogueEditor.Elements {
                 NodeName = target.value;
                 GraphViewElement.AddGroupedNode(this, currentGroupElement);
             });
+            nodeName.RegisterCallback<FocusInEvent>(_ => {
+                _nodeNameEditScope?.Dispose();
+                _nodeNameEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Rename dialogue node");
+            });
+            nodeName.RegisterCallback<FocusOutEvent>(_ => {
+                _nodeNameEditScope?.Dispose();
+                _nodeNameEditScope = null;
+            });
+            nodeName.RegisterCallback<DetachFromPanelEvent>(_ => {
+                _nodeNameEditScope?.Dispose();
+                _nodeNameEditScope = null;
+            });
             nodeName.style.fontSize = 13;
             nodeName.tooltip = Constants.NodeNameTooltip;
             nodeNameLabel.tooltip = Constants.NodeNameTooltip;
@@ -124,8 +141,10 @@ namespace DialogueEditor.Elements {
             EnumField speakerTypeDropdown = new("", Model.SpeakerType) { tooltip = Constants.SpeakerTooltip };
             SetNodeColorBasedOnSpeakerType();
             speakerTypeDropdown.RegisterValueChangedCallback(evt => {
-                Model.SpeakerType = (SpeakerType)evt.newValue;
-                SetNodeColorBasedOnSpeakerType();
+                GraphViewElement.UndoManager.RecordNodeChange(this, "Change speaker type", () => {
+                    Model.SpeakerType = (SpeakerType)evt.newValue;
+                    SetNodeColorBasedOnSpeakerType();
+                });
             });
             speakerTypeDropdown.AddToClassList("node_title-speaker-dropdown");
             _elementLibrary.Add(ElementID.SpeakerTypeDropdown, speakerTypeDropdown);
@@ -142,14 +161,16 @@ namespace DialogueEditor.Elements {
 
             // ADD CHOICE BUTTON
             Button addChoiceButton = ElementUtility.CreateButton("✚ New Choice", () => {
-                DialogueNodeSaveData dialogueNodeData = new();
-                Choices.Add(dialogueNodeData);
+                GraphViewElement.UndoManager.RecordNodeChange(this, "Add dialogue choice", () => {
+                    DialogueNodeSaveData dialogueNodeData = new();
+                    Choices.Add(dialogueNodeData);
 
-                if (Choices.Count > 1) ChoiceType = ChoiceType.MultipleChoice;
+                    if (Choices.Count > 1) ChoiceType = ChoiceType.MultipleChoice;
 
-                Port choicePort = CreateChoiceOptionPort(GraphViewElement, dialogueNodeData);
+                    Port choicePort = CreateChoiceOptionPort(GraphViewElement, dialogueNodeData);
 
-                outputContainer.Add(choicePort);
+                    outputContainer.Add(choicePort);
+                });
             });
             addChoiceButton.tooltip = Constants.AddChoiceButtonTooltip;
             addChoiceButton.style.fontSize = 13;
@@ -172,8 +193,23 @@ namespace DialogueEditor.Elements {
             // TEXT FIELD
             VisualElement nodeNameField = new();
             TextField dialogueTextField = ElementUtility.CreateTextArea(Model.Text, null, callback => {
+                if (_dialogueTextEditScope == null)
+                    _dialogueTextEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Edit dialogue text");
+
                 Model.Text = callback.newValue;
                 RefreshPreviousNodeButtons();
+            });
+            dialogueTextField.RegisterCallback<FocusInEvent>(_ => {
+                _dialogueTextEditScope?.Dispose();
+                _dialogueTextEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Edit dialogue text");
+            });
+            dialogueTextField.RegisterCallback<FocusOutEvent>(_ => {
+                _dialogueTextEditScope?.Dispose();
+                _dialogueTextEditScope = null;
+            });
+            dialogueTextField.RegisterCallback<DetachFromPanelEvent>(_ => {
+                _dialogueTextEditScope?.Dispose();
+                _dialogueTextEditScope = null;
             });
             dialogueTextField.style.maxHeight = 500;
             nodeNameField.Add(dialogueTextField);
@@ -186,38 +222,23 @@ namespace DialogueEditor.Elements {
             foldout.Add(settingsListContainer);
             _elementLibrary.Add(ElementID.SettingsFoldout, foldout);
             
-            NodeSettingsListElement nodeSettingsListElement = new(_nodeSettings, GraphViewElement?.EditorWindow);
+            NodeSettingsListElement nodeSettingsListElement = new(_nodeSettings,
+                                                                  GraphViewElement?.EditorWindow,
+                                                                  GraphViewElement?.UndoManager,
+                                                                  this);
             nodeSettingsListElement.ListChanged += () => { indicator.RefreshUI(_nodeSettings.Count > 0); };
             settingsListContainer.Add(nodeSettingsListElement);
             _elementLibrary.Add(ElementID.SettingsList, settingsListContainer);
         }
-
-        void AddExistingChoicePorts() {
-            ((NodeIndicator)_elementLibrary[ElementID.NodeIndicator]).RefreshUI(_nodeSettings.Count > 0);
-            if (Choices == null) return;
-
-            List<Port> existingPorts = outputContainer.Children().OfType<Port>().ToList();
-            for (int i = existingPorts.Count;
-                i < Choices.Count;
-                i++) {
-                var data = new DialogueNodeSaveData();
-                Port choicePort = CreateChoiceOptionPort(GraphViewElement, data);
-                Choices.Add(data);
-                outputContainer.Add(choicePort);
-            }
-        }
-
+        
         void SubscribeToGraphEvents() {
             GraphViewElement.OnNodeDeletion += node => { ClearDeletedNodeFromChoices(node.ID); };
 
             GraphViewElement.graphViewChanged = change => {
                 EdgeElement.HandleEdgeChange(change);
-                if (change.edgesToCreate != null && change.edgesToCreate.Count > 0) {
+                if (change.edgesToCreate is { Count: > 0 }) {
                     List<Edge> filteredEdges = change.edgesToCreate
-                                                     .Where(edge => edge != null &&
-                                                                    edge.parent == null &&
-                                                                    edge.output != null &&
-                                                                    edge.input != null)
+                                                     .Where(edge => edge is { parent: null, output: not null, input: not null })
                                                      .GroupBy(edge => (edge.output, edge.input))
                                                      .Select(group => group.First())
                                                      .Where(edge => !edge.output.connections
@@ -281,22 +302,40 @@ namespace DialogueEditor.Elements {
         ) {
             Port choicePort = CreatePort();
             choicePort.userData = dialogueNodeData;
+            IDisposable choiceTextEditScope = null;
             Button deleteChoiceButton = ElementUtility.CreateButton("X", () => {
-                if (Choices.Count == 1) {
-                    ChoiceType = ChoiceType.SingleChoice;
-                    return;
-                }
-                if (choicePort.connected) graphViewElement.DeleteElements(choicePort.connections);
-                Choices.Remove(dialogueNodeData);
-                graphViewElement.RemoveElement(choicePort);
+                GraphViewElement.UndoManager.RecordNodeChange(this, "Remove dialogue choice", () => {
+                    if (Choices.Count == 1) {
+                        ChoiceType = ChoiceType.SingleChoice;
+                        return;
+                    }
+
+                    if (choicePort.connected) graphViewElement.DeleteElements(choicePort.connections);
+                    Choices.Remove(dialogueNodeData);
+                    graphViewElement.RemoveElement(choicePort);
+                });
             });
             deleteChoiceButton.tooltip = Constants.DeleteChoiceButtonTooltip;
             
-            TextField choiceTextField = ElementUtility.CreateTextField(dialogueNodeData.Text, null);
+            TextField choiceTextField = ElementUtility.CreateTextField(dialogueNodeData.Text);
             choiceTextField.RegisterValueChangedCallback(evt => {
-                    dialogueNodeData.Text = evt.newValue;
-                } 
-            );
+                if (choiceTextEditScope == null)
+                    choiceTextEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Edit choice text");
+
+                dialogueNodeData.Text = evt.newValue;
+            });
+            choiceTextField.RegisterCallback<FocusInEvent>(_ => {
+                choiceTextEditScope?.Dispose();
+                choiceTextEditScope = GraphViewElement.UndoManager.BeginNodeEdit(this, "Edit choice text");
+            });
+            choiceTextField.RegisterCallback<FocusOutEvent>(_ => {
+                choiceTextEditScope?.Dispose();
+                choiceTextEditScope = null;
+            });
+            choiceTextField.RegisterCallback<DetachFromPanelEvent>(_ => {
+                choiceTextEditScope?.Dispose();
+                choiceTextEditScope = null;
+            });
 
             Button followChoiceButton = new(() => { FollowNode(choicePort); }) { text = "Follow", tooltip = Constants.FollowNextNodeButtonTooltip };
 

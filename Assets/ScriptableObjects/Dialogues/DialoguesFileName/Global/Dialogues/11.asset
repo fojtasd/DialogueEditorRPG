@@ -21,7 +21,8 @@ MonoBehaviour:
     <Text>k__BackingField: So why are you bothering me?
     <SpeakerType>k__BackingField: 0
     <NodeSettings>k__BackingField: []
-  <Choices>k__BackingField: []
+  <Choices>k__BackingField:
+  - <NextDialogue>k__BackingField: {fileID: 0}
   references:
     version: 2
     RefIds: []

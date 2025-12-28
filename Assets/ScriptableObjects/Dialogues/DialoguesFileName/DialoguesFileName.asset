@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DialoguesFileName
   m_EditorClassIdentifier: DialogueSystemAssembly::DialogueSystem.DialogueContainerSO
   <FileName>k__BackingField: DialoguesFileName
+  <StartingNode>k__BackingField: {fileID: 11400000, guid: e4b2221f9d14576428e3544c7d9388ad, type: 2}
   <DialogueGroups>k__BackingField:
     list:
     - key: {fileID: 11400000, guid: dc977f41e768d4a4d88d9fdf9a56f500, type: 2}
@@ -34,4 +35,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3289449cbc976bd4abaca777a042fa39, type: 2}
   - {fileID: 11400000, guid: d347c60d12bfb274ea1b2ac501919af8, type: 2}
   - {fileID: 11400000, guid: ea12571341b058545aaec281c93336b8, type: 2}
-  <StartingNode>k__BackingField: {fileID: 11400000, guid: e4b2221f9d14576428e3544c7d9388ad, type: 2}

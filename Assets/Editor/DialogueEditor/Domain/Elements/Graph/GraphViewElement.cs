@@ -4,11 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common;
-using Contracts.Dialogues;
 using DialogueEditor.Data.Error;
 using DialogueEditor.Data.Save;
+using DialogueEditor.Domain.Undo;
 using DialogueEditor.Utilities;
 using DialogueEditor.Windows;
+using DialogueSystem.Node;
 using DialogueSystem.Utilities;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -30,11 +31,15 @@ namespace DialogueEditor.Elements {
 
         List<BaseNode> _lastInvalidStartingNodes = new();
 
+        readonly GraphUndoManager _undoManager;
+
 
         public BaseNode HighlightedNode;
 
         public GraphViewElement(DialogueEditorWindow dialogueEditorWindow) {
             EditorWindow = dialogueEditorWindow;
+
+            _undoManager = new GraphUndoManager(this);
 
             _ungroupedNodes = new SerializableDictionary<string, NodeErrorData>();
             _groups = new SerializableDictionary<string, GroupErrorData>();
@@ -52,14 +57,18 @@ namespace DialogueEditor.Elements {
             OnGroupRenamed();
 
             AddStyles();
+            RegisterCallback<KeyDownEvent>(HandleKeyDown);
             schedule.Execute(ValidateGraph).Every(2000);
         }
 
         public DialogueEditorWindow EditorWindow { get; }
 
+        public GraphUndoManager UndoManager => _undoManager;
+
         public int NameErrorsAmount { get; set; }
 
         public event Action<BaseNode> OnNodeDeletion;
+        public event Action OnGraphChanged;
 
         void RebuildUsedNodeNames() {
             _usedNodeNames.Clear();
@@ -86,6 +95,38 @@ namespace DialogueEditor.Elements {
                 foreach (BaseNode node in _lastInvalidStartingNodes) node.ResetStyleAfterError();
 
                 _lastInvalidStartingNodes.Clear();
+            }
+        }
+
+        void HandleKeyDown(KeyDownEvent evt) {
+            if (evt == null)
+                return;
+
+            if (!evt.actionKey)
+                return;
+
+            switch (evt.keyCode) {
+                case KeyCode.Z:
+                    if (evt.shiftKey) {
+                        if (_undoManager.CanRedo) {
+                            _undoManager.Redo();
+                            evt.StopPropagation();
+                        }
+                    } else {
+                        if (_undoManager.CanUndo) {
+                            _undoManager.Undo();
+                            evt.StopPropagation();
+                        }
+                    }
+
+                    break;
+                case KeyCode.Y:
+                    if (_undoManager.CanRedo) {
+                        _undoManager.Redo();
+                        evt.StopPropagation();
+                    }
+
+                    break;
             }
         }
 
@@ -162,6 +203,7 @@ namespace DialogueEditor.Elements {
                 group.AddElement(node);
             }
 
+            NotifyGraphChanged();
             return group;
         }
 
@@ -181,6 +223,9 @@ namespace DialogueEditor.Elements {
 
             AddUngroupedNode(node);
 
+            NotifyGraphChanged();
+            if (shouldDraw)
+                _undoManager.RecordNodeCreation(node);
             return node;
         }
 
@@ -200,6 +245,9 @@ namespace DialogueEditor.Elements {
 
             AddUngroupedNode(node);
 
+            NotifyGraphChanged();
+            if (shouldDraw)
+                _undoManager.RecordNodeCreation(node);
             return node;
         }
 
@@ -212,6 +260,9 @@ namespace DialogueEditor.Elements {
 
             AddUngroupedNode(node);
 
+            NotifyGraphChanged();
+            if (shouldDraw)
+                _undoManager.RecordNodeCreation(node);
             return node;
         }
 
@@ -259,12 +310,24 @@ namespace DialogueEditor.Elements {
                 }
 
                 DeleteElements(edgesToDelete);
+                if (edgesToDelete.Count > 0)
+                    NotifyGraphChanged();
 
                 foreach (BaseNode nodeToDelete in nodesToDelete) DeleteNode(nodeToDelete);
             };
         }
 
         void DeleteNode(BaseNode nodeToDelete) {
+            if (nodeToDelete == null)
+                return;
+
+            if (_undoManager.TryHandleNodeDeletion(nodeToDelete))
+                return;
+
+            RemoveNodeInternal(nodeToDelete);
+        }
+
+        internal void RemoveNodeInternal(BaseNode nodeToDelete) {
             if (nodeToDelete == null)
                 return;
 
@@ -282,10 +345,16 @@ namespace DialogueEditor.Elements {
             }
 
             RemoveElement(nodeToDelete);
+            NotifyGraphChanged();
+        }
+
+        public void NotifyGraphChanged() {
+            OnGraphChanged?.Invoke();
         }
 
         void OnGroupElementsAdded() {
             elementsAddedToGroup = (group, elements) => {
+                var changed = false;
                 foreach (GraphElement element in elements) {
                     if (element is not BaseNode node) continue;
 
@@ -293,12 +362,17 @@ namespace DialogueEditor.Elements {
 
                     RemoveUngroupedNode(node);
                     AddGroupedNode(node, dsGroup);
+                    changed = true;
                 }
+
+                if (changed)
+                    NotifyGraphChanged();
             };
         }
 
         void OnGroupElementsRemoved() {
             elementsRemovedFromGroup = (group, elements) => {
+                var changed = false;
                 foreach (GraphElement element in elements) {
                     if (element is not BaseNode node) continue;
 
@@ -306,7 +380,11 @@ namespace DialogueEditor.Elements {
 
                     RemoveGroupedNode(node, dsGroup);
                     AddUngroupedNode(node);
+                    changed = true;
                 }
+
+                if (changed)
+                    NotifyGraphChanged();
             };
         }
 
@@ -325,6 +403,7 @@ namespace DialogueEditor.Elements {
                 RemoveGroup(dsGroup);
                 dsGroup.OldTitle = dsGroup.title;
                 AddGroup(dsGroup);
+                NotifyGraphChanged();
             };
         }
 
@@ -355,6 +434,7 @@ namespace DialogueEditor.Elements {
                 var nodeErrorData = new NodeErrorData();
                 nodeErrorData.Nodes.Add(node);
                 _ungroupedNodes.Add(nodeName, nodeErrorData);
+                NotifyGraphChanged();
                 return;
             }
 
@@ -368,6 +448,7 @@ namespace DialogueEditor.Elements {
             ++NameErrorsAmount;
 
             ungroupedNodesList[0].SetErrorStyle(errorColor);
+            NotifyGraphChanged();
         }
 
         public void RemoveUngroupedNode(BaseNode node) {
@@ -384,10 +465,12 @@ namespace DialogueEditor.Elements {
             if (ungroupedNodesList.Count == 1) {
                 --NameErrorsAmount;
                 ungroupedNodesList[0].ResetStyleAfterError();
+                NotifyGraphChanged();
                 return;
             }
 
             if (ungroupedNodesList.Count == 0) _ungroupedNodes.Remove(nodeName);
+            NotifyGraphChanged();
         }
 
         void AddGroup(GroupElement groupElement) {
@@ -424,10 +507,12 @@ namespace DialogueEditor.Elements {
 
                 groupsList[0].ResetStyle();
 
+                NotifyGraphChanged();
                 return;
             }
 
             if (groupsList.Count == 0) _groups.Remove(oldGroupName);
+            NotifyGraphChanged();
         }
 
         public void AddGroupedNode(BaseNode node, GroupElement groupElement) {
@@ -447,6 +532,7 @@ namespace DialogueEditor.Elements {
 
                 _groupedNodes[groupElement].Add(nodeName, nodeErrorData);
 
+                NotifyGraphChanged();
                 return;
             }
 
@@ -463,6 +549,7 @@ namespace DialogueEditor.Elements {
 
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
+            NotifyGraphChanged();
         }
 
         public void RemoveGroupedNode(BaseNode node, GroupElement groupElement) {
@@ -482,6 +569,7 @@ namespace DialogueEditor.Elements {
                 --NameErrorsAmount;
 
                 groupedNodesList[0].ResetStyleAfterError();
+                NotifyGraphChanged();
 
                 return;
             }
@@ -491,6 +579,7 @@ namespace DialogueEditor.Elements {
 
                 if (_groupedNodes[groupElement].Count == 0) _groupedNodes.Remove(groupElement);
             }
+            NotifyGraphChanged();
         }
 
         void AddGridBackground() {
@@ -522,14 +611,19 @@ namespace DialogueEditor.Elements {
         }
 
         public void ClearGraph() {
-            graphElements.ForEach(RemoveElement);
+            using (_undoManager.SuppressRecording()) {
+                graphElements.ForEach(RemoveElement);
 
-            _groups.Clear();
-            _groupedNodes.Clear();
-            _ungroupedNodes.Clear();
-            RebuildUsedNodeNames();
+                _groups.Clear();
+                _groupedNodes.Clear();
+                _ungroupedNodes.Clear();
+                RebuildUsedNodeNames();
 
-            NameErrorsAmount = 0;
+                NameErrorsAmount = 0;
+                NotifyGraphChanged();
+            }
+
+            _undoManager.ClearHistory();
         }
         
         public void SearchNodes(string searchTerm) {
@@ -609,6 +703,7 @@ namespace DialogueEditor.Elements {
             if (dialogueNode == null) return;
             DisconnectInputPorts(dialogueNode);
             DisconnectOutputPorts(dialogueNode);
+            NotifyGraphChanged();
         }
 
         public void DisconnectInputPorts(BaseNode dialogueNode) {
@@ -617,6 +712,43 @@ namespace DialogueEditor.Elements {
 
         public void DisconnectOutputPorts(BaseNode dialogueNode) {
             DisconnectPorts(dialogueNode.outputContainer);
+        }
+
+        internal IEnumerable<Port> GetInputPorts(BaseNode node) {
+            return node?.inputContainer.Children().OfType<Port>() ?? Enumerable.Empty<Port>();
+        }
+
+        internal IEnumerable<Port> GetOutputPorts(BaseNode node) {
+            return node?.outputContainer.Children().OfType<Port>() ?? Enumerable.Empty<Port>();
+        }
+
+        internal Port GetPrimaryInputPort(BaseNode node) {
+            return GetInputPorts(node).FirstOrDefault();
+        }
+
+        internal Port FindOutputPort(BaseNode node, object userData) {
+            if (node == null || userData == null)
+                return null;
+
+            return GetOutputPorts(node).FirstOrDefault(port => ReferenceEquals(port.userData, userData));
+        }
+
+        internal EdgeElement ConnectPorts(Port outputPort, Port inputPort) {
+            if (outputPort == null || inputPort == null)
+                return null;
+
+            if (outputPort.connections.Any(edge => edge != null && edge.input == inputPort))
+                return null;
+
+            var edge = new EdgeElement { output = outputPort, input = inputPort };
+
+            outputPort.Connect(edge);
+            inputPort.Connect(edge);
+            AddElement(edge);
+            edge.ApplyCustomStyle();
+
+            NotifyGraphChanged();
+            return edge;
         }
 
         public void AddSticky(Vector2 position,
@@ -640,6 +772,171 @@ namespace DialogueEditor.Elements {
                 sticky.SetFontSize(fontSize.Value);
 
             AddElement(sticky);
+            NotifyGraphChanged();
+        }
+
+        internal BaseNode FindNodeById(string nodeId) {
+            if (string.IsNullOrEmpty(nodeId))
+                return null;
+
+            return nodes.OfType<BaseNode>().FirstOrDefault(n => n.ID == nodeId);
+        }
+
+        internal GroupElement FindGroupById(string groupId) {
+            if (string.IsNullOrEmpty(groupId))
+                return null;
+
+            return graphElements.OfType<GroupElement>().FirstOrDefault(g => g.ID == groupId);
+        }
+
+        internal BaseNode RestoreNode(NodeSaveData data) {
+            if (data == null)
+                return null;
+
+            BaseNode restoredNode = data.NodeType switch {
+                GraphNodeType.Dialogue => RestoreDialogueNode(data),
+                GraphNodeType.Conditional => RestoreConditionalNode(data),
+                GraphNodeType.Relay => RestoreRelayNode(data),
+                _ => null
+            };
+
+            if (restoredNode == null)
+                return null;
+
+            AddElement(restoredNode);
+
+            GroupElement group = FindGroupById(data.GroupID);
+            if (group != null) {
+                restoredNode.GroupElement = group;
+                group.AddElement(restoredNode);
+            }
+
+            return restoredNode;
+        }
+
+        BaseNode RestoreDialogueNode(NodeSaveData data) {
+            DialogueNode dialogueNode = CreateDialogueNode(data.Position, data.NodeName, false);
+            dialogueNode.ID = data.ID;
+            dialogueNode.NodeName = data.NodeName;
+            dialogueNode.ChoiceType = data.ChoiceType;
+            dialogueNode.Choices = IOUtility.CloneNodeChoices(data.Choices ?? new List<DialogueNodeSaveData>());
+            dialogueNode.Model.Text = data.Text;
+            dialogueNode.Model.SpeakerType = data.SpeakerType;
+            dialogueNode.SetNodeColorBasedOnSpeakerType();
+            dialogueNode.ReplaceNodeSettings(data.NodeSettings);
+            dialogueNode.Draw();
+            dialogueNode.RefreshUI();
+            return dialogueNode;
+        }
+
+        BaseNode RestoreConditionalNode(NodeSaveData data) {
+            ConditionalNode conditionalNode = CreateConditionalNode(data.Position, data.NodeName, false);
+            conditionalNode.ID = data.ID;
+            conditionalNode.NodeName = data.NodeName;
+            conditionalNode.ChoiceType = data.ChoiceType;
+
+            ConditionalNodeSaveData failure = data.Conditionals?.failure != null
+                ? new ConditionalNodeSaveData {
+                    Text = data.Conditionals.failure.Text,
+                    NodeID = data.Conditionals.failure.NodeID,
+                    OutputType = ConditionalOutputType.Failure
+                }
+                : new ConditionalNodeSaveData { OutputType = ConditionalOutputType.Failure, Text = "FAILURE" };
+
+            ConditionalNodeSaveData success = data.Conditionals?.success != null
+                ? new ConditionalNodeSaveData {
+                    Text = data.Conditionals.success.Text,
+                    NodeID = data.Conditionals.success.NodeID,
+                    OutputType = ConditionalOutputType.Success
+                }
+                : new ConditionalNodeSaveData { OutputType = ConditionalOutputType.Success, Text = "SUCCESS" };
+
+            conditionalNode.FailureNodeData = failure;
+            conditionalNode.SuccessNodeData = success;
+            conditionalNode.ExpectedValue = data.Conditionals?.expectedValue ?? conditionalNode.ExpectedValue;
+            conditionalNode.AttributeType = data.Conditionals?.attributeType ?? conditionalNode.AttributeType;
+            conditionalNode.SkillType = data.Conditionals?.skillType ?? conditionalNode.SkillType;
+            conditionalNode.ConditionTargetType = data.Conditionals?.kind ?? conditionalNode.ConditionTargetType;
+
+            conditionalNode.Draw();
+            conditionalNode.RefreshUI();
+            return conditionalNode;
+        }
+
+        BaseNode RestoreRelayNode(NodeSaveData data) {
+            RelayNode relayNode = CreateRelayNode(data.Position, false);
+            relayNode.ID = data.ID;
+            relayNode.NodeName = data.NodeName;
+            relayNode.ChoiceType = data.ChoiceType;
+
+            RelayNodeSaveData relayData = data.RelayConnection != null
+                ? new RelayNodeSaveData { NodeID = data.RelayConnection.NodeID }
+                : new RelayNodeSaveData();
+            relayNode.SetConnectionData(relayData);
+
+            relayNode.Draw();
+            relayNode.RefreshUI();
+            return relayNode;
+        }
+
+        internal void RestoreOutgoingConnections(BaseNode node, NodeSaveData data) {
+            if (node == null || data == null)
+                return;
+
+            switch (data.NodeType) {
+                case GraphNodeType.Dialogue when node is DialogueNode dialogueNode: {
+                    foreach (Port port in GetOutputPorts(dialogueNode)) {
+                        if (port.userData is not DialogueNodeSaveData choiceData)
+                            continue;
+
+                        if (string.IsNullOrEmpty(choiceData.NodeID))
+                            continue;
+
+                        BaseNode targetNode = FindNodeById(choiceData.NodeID);
+                        Port inputPort = GetPrimaryInputPort(targetNode);
+                        if (inputPort == null)
+                            continue;
+
+                        ConnectPorts(port, inputPort);
+                    }
+
+                    break;
+                }
+                case GraphNodeType.Conditional when node is ConditionalNode conditionalNode: {
+                    foreach (Port port in GetOutputPorts(conditionalNode)) {
+                        if (port.userData is not ConditionalNodeSaveData conditionalData)
+                            continue;
+
+                        if (string.IsNullOrEmpty(conditionalData.NodeID))
+                            continue;
+
+                        BaseNode targetNode = FindNodeById(conditionalData.NodeID);
+                        Port inputPort = GetPrimaryInputPort(targetNode);
+                        if (inputPort == null)
+                            continue;
+
+                        ConnectPorts(port, inputPort);
+                    }
+
+                    break;
+                }
+                case GraphNodeType.Relay when node is RelayNode relayNode: {
+                    Port relayOutput = GetOutputPorts(relayNode).FirstOrDefault();
+                    if (relayOutput?.userData is not RelayNodeSaveData relayData)
+                        break;
+
+                    if (string.IsNullOrEmpty(relayData.NodeID))
+                        break;
+
+                    BaseNode targetNode = FindNodeById(relayData.NodeID);
+                    Port inputPort = GetPrimaryInputPort(targetNode);
+                    if (inputPort == null)
+                        break;
+
+                    ConnectPorts(relayOutput, inputPort);
+                    break;
+                }
+            }
         }
 
         public GraphValidationSummary GetValidationSummary() {
@@ -885,6 +1182,21 @@ namespace DialogueEditor.Elements {
                 return "(unnamed)";
 
             return group.title;
+        }
+
+        public bool FocusNodeById(string nodeId) {
+            if (string.IsNullOrEmpty(nodeId))
+                return false;
+
+            BaseNode targetNode = nodes
+                                  .OfType<BaseNode>()
+                                  .FirstOrDefault(node => string.Equals(node?.ID, nodeId, StringComparison.Ordinal));
+
+            if (targetNode == null)
+                return false;
+
+            CenterOnNode(targetNode);
+            return true;
         }
     }
 }

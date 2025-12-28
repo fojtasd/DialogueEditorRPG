@@ -20,9 +20,20 @@ MonoBehaviour:
   <Model>k__BackingField:
     <Text>k__BackingField: About your dead wife...
     <SpeakerType>k__BackingField: 1
-    <NodeSettings>k__BackingField: []
+    <NodeSettings>k__BackingField:
+    - rid: 2331280852085899357
   <Choices>k__BackingField:
   - <NextDialogue>k__BackingField: {fileID: 11400000, guid: 58ace4491d649684e9b15f65d1deb531, type: 2}
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2331280852085899357
+      type: {class: AccessibilitySetting, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
+      data:
+        kind: 5
+        payload:
+          rid: 2331280852085899358
+    - rid: 2331280852085899358
+      type: {class: IntelRequiredPayload, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
+      data:
+        intelID: dead wife

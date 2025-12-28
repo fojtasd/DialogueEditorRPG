@@ -21,18 +21,18 @@ MonoBehaviour:
     <Text>k__BackingField: These curtains are illegaly beautiful.
     <SpeakerType>k__BackingField: 1
     <NodeSettings>k__BackingField:
-    - rid: 2331280835563225348
+    - rid: 2331280852085899353
   <Choices>k__BackingField:
   - <NextDialogue>k__BackingField: {fileID: 11400000, guid: 1a83ad29b3858114b93d3127c395ddff, type: 2}
   references:
     version: 2
     RefIds:
-    - rid: 2331280835563225348
+    - rid: 2331280852085899353
       type: {class: AccessibilitySetting, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data:
         kind: 0
         payload:
-          rid: 2331280835563225349
-    - rid: 2331280835563225349
+          rid: 2331280852085899354
+    - rid: 2331280852085899354
       type: {class: IsVisitableOnlyOncePayload, ns: DialogueSystem.Node, asm: DialogueSystemAssembly}
       data: 
