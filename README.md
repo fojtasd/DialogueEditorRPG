@@ -1,5 +1,7 @@
 # Dialogue Editor (Unity)
 
+![Options](/Images/demo.gif)
+
 ## Prerequisites
 - [ ] Unity 6000.3.2f1 - but it might work on older versions too, I have started on pre-6 versions.
 - [ ] Odin Inspector
