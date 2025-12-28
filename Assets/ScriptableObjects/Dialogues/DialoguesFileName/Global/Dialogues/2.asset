@@ -9,19 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d7843603eb7dac48a14cda296b3d168, type: 3}
+  m_Script: {fileID: 11500000, guid: 887724df39194f2bba8fa76d64223d22, type: 3}
   m_Name: 2
-  m_EditorClassIdentifier: DialogueSystemAssembly::DialogueSystem.NodeSO
-  <DialogueID>k__BackingField: 71562062-7981-45b8-91f5-5eec18900d1d
+  m_EditorClassIdentifier: DialogueSystemAssembly::DialogueSystem.ConditionalNodeSO
+  <DialogueID>k__BackingField: a19b3c08-cc2b-452c-85f2-d3afd5ba85d4
   <DialogueGroup>k__BackingField: 
   <DialogueName>k__BackingField: 2
-  <DialogueType>k__BackingField: 0
+  <DialogueType>k__BackingField: 2
   <IsStartingNode>k__BackingField: 0
-  <Model>k__BackingField:
-    <Text>k__BackingField: Dialogue text
-    <SpeakerType>k__BackingField: 0
-    <NodeSettings>k__BackingField: []
-  <Choices>k__BackingField: []
-  references:
-    version: 2
-    RefIds: []
+  <NextDialogueSuccess>k__BackingField: {fileID: 11400000, guid: 67a479938eaa6274b98bbfdc569a3ca0, type: 2}
+  <NextDialogueFailure>k__BackingField: {fileID: 11400000, guid: ea12571341b058545aaec281c93336b8, type: 2}
+  <Conditionals>k__BackingField:
+    <ExpectedValue>k__BackingField: 5
+    <ExpectedIntel>k__BackingField: {fileID: 0}
+    <AttributeType>k__BackingField: 4
+    <SkillType>k__BackingField: 0
+    <Kind>k__BackingField: 1

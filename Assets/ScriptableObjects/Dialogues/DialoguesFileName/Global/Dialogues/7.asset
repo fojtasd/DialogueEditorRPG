@@ -10,19 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1d7843603eb7dac48a14cda296b3d168, type: 3}
-  m_Name: 1
+  m_Name: 7
   m_EditorClassIdentifier: DialogueSystemAssembly::DialogueSystem.NodeSO
-  <DialogueID>k__BackingField: e55d6632-dd51-436b-a766-c558914fee38
+  <DialogueID>k__BackingField: 79b323a8-a0d7-4318-a102-67900e1addf0
   <DialogueGroup>k__BackingField: 
-  <DialogueName>k__BackingField: 1
+  <DialogueName>k__BackingField: 7
   <DialogueType>k__BackingField: 0
-  <IsStartingNode>k__BackingField: 1
+  <IsStartingNode>k__BackingField: 0
   <Model>k__BackingField:
-    <Text>k__BackingField: Hi!
+    <Text>k__BackingField: Dialogue text
     <SpeakerType>k__BackingField: 0
     <NodeSettings>k__BackingField: []
-  <Choices>k__BackingField:
-  - <NextDialogue>k__BackingField: {fileID: 11400000, guid: 9be543e827fc25f44bdc446bbfc4bef1, type: 2}
+  <Choices>k__BackingField: []
   references:
     version: 2
     RefIds: []
